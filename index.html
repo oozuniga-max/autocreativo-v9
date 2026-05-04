@@ -52,7 +52,7 @@
                 <span class="text-3xl text-gold">🔑</span>
             </div>
             <h3 class="text-gold font-serif italic text-3xl mb-2 text-center">Conexión Neural</h3>
-            <p class="text-muted text-[10px] mb-8 font-mono uppercase tracking-[0.4em] text-center">Protocolo de Acceso Gemini 2.5</p>
+            <p class="text-muted text-[10px] mb-8 font-mono uppercase tracking-[0.4em] text-center">Protocolo de Acceso Gemini</p>
             
             <div class="space-y-4">
                 <input type="password" id="api-key-input" placeholder="Ingresa tu Clave AIzaSy..." 
@@ -151,6 +151,7 @@
 
     <script>
         let apiKey = localStorage.getItem('gemini_api_key') || "";
+        let currentImageBase64 = null;
 
         function updateIndicator() {
             const ind = document.getElementById('api-indicator');
@@ -182,10 +183,38 @@
             }
         }
 
-        updateIndicator();
-        if(!apiKey) setTimeout(() => toggleApiModal(true), 2500);
+        // Compresión de imagen para evitar errores de peso
+        async function compressImage(base64Str) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.src = base64Str;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 1200;
+                    const MAX_HEIGHT = 1200;
+                    let width = img.width;
+                    let height = img.height;
 
-        let currentImage = null;
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/jpeg', 0.7).split(',')[1]);
+                };
+            });
+        }
+
         const fileInput = document.getElementById('file-upload');
         const preview = document.getElementById('preview');
 
@@ -193,11 +222,12 @@
             const file = e.target.files[0];
             if(file) {
                 const reader = new FileReader();
-                reader.onload = (ev) => {
+                reader.onload = async (ev) => {
                     preview.src = ev.target.result;
                     preview.classList.remove('hidden');
                     document.getElementById('placeholder-text').classList.add('hidden');
-                    currentImage = ev.target.result.split(',')[1];
+                    // Comprimimos al cargar para tenerla lista
+                    currentImageBase64 = await compressImage(ev.target.result);
                     document.getElementById('results').classList.add('hidden');
                     document.getElementById('empty-state').classList.remove('hidden');
                 };
@@ -206,7 +236,7 @@
         });
 
         async function startAnalysis() {
-            if(!currentImage) return;
+            if(!currentImageBase64) return;
             if(!apiKey) return toggleApiModal(true);
 
             const btn = document.getElementById('btn-analyze');
@@ -215,20 +245,23 @@
             const btnText = document.getElementById('btn-text');
 
             btn.disabled = true;
-            btnText.innerText = "TRASMITIENDO V2.5...";
+            btnText.innerText = "SINTONIZANDO RED...";
             loader.classList.remove('hidden');
             scanner.style.display = 'block';
 
-            // Intentar primero con el modelo más nuevo (2.5) y fallback al 1.5 si falla
-            const models = ["gemini-2.5-flash-preview-09-2025", "gemini-1.5-flash"];
-            let success = false;
+            // Modelos en orden de preferencia y estabilidad
+            const models = [
+                "gemini-2.0-flash", 
+                "gemini-2.0-flash-exp",
+                "gemini-1.5-flash"
+            ];
+            
+            let lastError = "";
 
             for (const model of models) {
-                if (success) break;
-                
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
                 const prompt = `Analiza esta imagen como una obra de arte psicográfica. 
-                Responde exclusivamente con un objeto JSON válido, sin bloques de código ni texto adicional.
+                Responde exclusivamente con un objeto JSON válido.
                 Estructura JSON: {"meta": "párrafo poético místico", "tec": "párrafo técnico artístico", "quote": "frase corta profética", "tags": ["tag1", "tag2", "tag3"]}`;
 
                 try {
@@ -239,7 +272,7 @@
                             contents: [{
                                 parts: [
                                     {text: prompt},
-                                    {inlineData: {mimeType: "image/jpeg", data: currentImage}}
+                                    {inlineData: {mimeType: "image/jpeg", data: currentImageBase64}}
                                 ]
                             }]
                         })
@@ -248,22 +281,34 @@
                     if (response.ok) {
                         const data = await response.json();
                         const rawText = data.candidates[0].content.parts[0].text;
-                        const jsonContent = rawText.substring(rawText.indexOf('{'), rawText.lastIndexOf('}') + 1);
-                        const cleanJson = JSON.parse(jsonContent);
-                        showResults(cleanJson);
-                        success = true;
+                        const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+                        if (jsonMatch) {
+                            showResults(JSON.parse(jsonMatch[0]));
+                            btn.disabled = false;
+                            btnText.innerText = "INICIAR TRANSMUTACIÓN";
+                            loader.classList.add('hidden');
+                            scanner.style.display = 'none';
+                            return; // Éxito, salimos de la función
+                        }
+                    } else {
+                        const errData = await response.json();
+                        lastError = errData.error?.message || "Error desconocido";
                     }
                 } catch (err) {
-                    console.warn(`Fallo con el modelo ${model}, reintentando...`);
+                    lastError = "Fallo de red o clave inválida";
                 }
             }
 
-            if (!success) {
-                alert("⚠️ Error de conexión crítica. El canal neural está obstruido. Revisa tu clave de API.");
-            }
-
-            btn.disabled = false;
-            btnText.innerText = "INICIAR TRANSMUTACIÓN";
+            // Si llegamos aquí, todos los modelos fallaron
+            btnText.innerText = "ERROR DE VÍNCULO";
+            btn.classList.replace('bg-gold', 'bg-red-900/50');
+            setTimeout(() => {
+                btn.classList.replace('bg-red-900/50', 'bg-gold');
+                btnText.innerText = "INICIAR TRANSMUTACIÓN";
+                btn.disabled = false;
+            }, 3000);
+            
+            console.error("Error final:", lastError);
             loader.classList.add('hidden');
             scanner.style.display = 'none';
         }
@@ -291,6 +336,9 @@
             document.getElementById('content-meta').classList.toggle('hidden', !isMeta);
             document.getElementById('content-tec').classList.toggle('hidden', isMeta);
         }
+
+        updateIndicator();
+        if(!apiKey) setTimeout(() => toggleApiModal(true), 2500);
     </script>
 </body>
 </html>
