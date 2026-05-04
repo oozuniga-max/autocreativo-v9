@@ -158,7 +158,7 @@
                 img.src = event.target.result;
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
-                    const MAX_SIZE = 800; // Reducimos para mayor velocidad y menos errores de carga
+                    const MAX_SIZE = 800; 
                     let width = img.width;
                     let height = img.height;
 
@@ -173,7 +173,7 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
                     
-                    base64Data = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
+                    base64Data = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
                     document.getElementById('img-preview').src = canvas.toDataURL('image/jpeg');
                     document.getElementById('img-preview').classList.remove('hidden');
                     document.getElementById('drop-text').classList.add('hidden');
@@ -193,114 +193,109 @@
             const scanner = document.getElementById('scan-line');
 
             btn.disabled = true;
-            label.innerText = "CONECTANDO CON GEMINI...";
+            label.innerText = "PROCESANDO...";
             loader.classList.remove('hidden');
             scanner.style.display = 'block';
 
-            const prompt = `Actúa como un experto en psicología del arte y automatismo. Analiza esta imagen y genera un diagnóstico en formato JSON puro: 
+            const prompt = `Analiza esta imagen como un experto en psicología del arte. Genera un diagnóstico artístico en este formato JSON exacto:
             {
-                "meta": "Una descripción profunda, mística y poética de la esencia de la obra (máx 60 palabras).",
-                "tec": "Análisis técnico de trazos, entropía y posibles estados de disociación motora observados.",
-                "quote": "Una frase corta inspiradora sobre el proceso creativo.",
+                "meta": "Esencia poética (máx 60 palabras).",
+                "tec": "Análisis técnico de trazos y entropía.",
+                "quote": "Frase inspiradora breve.",
                 "tags": ["Tag1", "Tag2", "Tag3"]
             }
-            IMPORTANTE: Solo responde el JSON, sin texto adicional ni bloques de código markdown.`;
+            IMPORTANTE: Responde solo el JSON, sin bloques de código ni explicaciones extra.`;
 
-            // Estrategia de reintentos con diferentes modelos
-            const endpoints = [
-                `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`,
-                `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${KEY}`
-            ];
+            // Corrección de Endpoint: v1beta es más flexible para modelos flash
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`;
 
-            let lastError = "";
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [
+                                { text: prompt },
+                                { inlineData: { mimeType: "image/jpeg", data: base64Data } }
+                            ]
+                        }]
+                    })
+                });
 
-            for(const url of endpoints) {
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{
-                                parts: [
-                                    { text: prompt },
-                                    { inlineData: { mimeType: "image/jpeg", data: base64Data } }
-                                ]
-                            }]
-                        })
-                    });
+                const result = await response.json();
 
-                    const result = await response.json();
-
-                    if (response.ok && result.candidates?.[0]?.content?.parts?.[0]?.text) {
-                        const rawText = result.candidates[0].content.parts[0].text;
-                        // Limpieza agresiva por si la IA añade ```json
-                        const jsonString = rawText.match(/\{[\s\S]*\}/)?.[0] || rawText;
-                        const data = JSON.parse(jsonString);
-                        renderResults(data);
-                        showFinalStatus("success", btn, label);
-                        return; // Éxito, salimos de la función
-                    } else {
-                        lastError = result.error?.message || "Error desconocido";
-                        console.error("Fallo en endpoint:", url, result);
-                    }
-                } catch (e) {
-                    lastError = e.message;
-                    console.error("Error de red en endpoint:", url, e);
+                if (!response.ok) {
+                    throw new Error(result.error?.message || `Error ${response.status}`);
                 }
-            }
 
-            // Si llegamos aquí, ambos fallaron
-            showFinalStatus("error", btn, label, lastError);
-            loader.classList.add('hidden');
-            scanner.style.display = 'none';
+                if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
+                    let rawText = result.candidates[0].content.parts[0].text;
+                    
+                    // Limpieza ultra-agresiva del JSON recibido
+                    const jsonStart = rawText.indexOf('{');
+                    const jsonEnd = rawText.lastIndexOf('}') + 1;
+                    const jsonString = rawText.substring(jsonStart, jsonEnd);
+                    
+                    const data = JSON.parse(jsonString);
+                    renderResults(data);
+                    showFinalStatus("success", btn, label);
+                } else {
+                    throw new Error("Respuesta de IA vacía o bloqueada.");
+                }
+
+            } catch (e) {
+                console.error("Error en la petición:", e);
+                showFinalStatus("error", btn, label, e.message);
+            } finally {
+                loader.classList.add('hidden');
+                scanner.style.display = 'none';
+            }
         }
 
         function showFinalStatus(type, btn, label, errorMsg = "") {
-            const loader = document.getElementById('btn-loader');
-            const scanner = document.getElementById('scan-line');
-            
-            loader.classList.add('hidden');
-            scanner.style.display = 'none';
             btn.disabled = false;
 
             if(type === "success") {
-                label.innerText = "¡ANÁLISIS EXITOSO!";
-                btn.className = btn.className.replace('bg-gold', 'bg-green-600');
+                label.innerText = "¡ANÁLISIS COMPLETADO!";
+                btn.classList.replace('bg-gold', 'bg-green-600');
                 setTimeout(() => {
                     label.innerText = "Analizar Obra";
-                    btn.className = btn.className.replace('bg-green-600', 'bg-gold');
+                    btn.classList.replace('bg-green-600', 'bg-gold');
                 }, 3000);
             } else {
-                label.innerText = errorMsg.includes("API key") ? "CLAVE INVÁLIDA" : "ERROR DE VÍNCULO";
-                btn.className = btn.className.replace('bg-gold', 'bg-red-600');
-                console.error("Error crítico:", errorMsg);
+                // Manejo visual de error
+                label.innerText = errorMsg.includes("404") ? "MODELO NO DISPONIBLE" : "ERROR DE CONEXIÓN";
+                btn.classList.replace('bg-gold', 'bg-red-600');
                 setTimeout(() => {
                     label.innerText = "Reintentar Análisis";
-                    btn.className = btn.className.replace('bg-red-600', 'bg-gold');
+                    btn.classList.replace('bg-red-600', 'bg-gold');
                 }, 3000);
             }
         }
 
         function renderResults(data) {
             document.getElementById('output-area').classList.remove('opacity-40');
-            document.getElementById('res-meta').innerText = data.meta;
-            document.getElementById('res-tec').innerText = data.tec;
-            document.getElementById('res-quote').innerText = data.quote;
+            document.getElementById('res-meta').innerText = data.meta || "Sin descripción.";
+            document.getElementById('res-tec').innerText = data.tec || "Sin análisis técnico.";
+            document.getElementById('res-quote').innerText = data.quote || "";
             
             const tagContainer = document.getElementById('res-tags');
             tagContainer.innerHTML = '';
-            data.tags.forEach(t => {
-                const span = document.createElement('span');
-                span.className = "px-3 py-1 bg-gold/10 border border-gold/20 rounded-lg text-[9px] font-mono text-gold uppercase tracking-widest";
-                span.innerText = t;
-                tagContainer.appendChild(span);
-            });
+            if(data.tags) {
+                data.tags.forEach(t => {
+                    const span = document.createElement('span');
+                    span.className = "px-3 py-1 bg-gold/10 border border-gold/20 rounded-lg text-[9px] font-mono text-gold uppercase tracking-widest";
+                    span.innerText = t;
+                    tagContainer.appendChild(span);
+                });
+            }
         }
 
         function switchTab(type) {
             const isMeta = type === 'meta';
-            document.getElementById('tab-meta').className = isMeta ? 'flex-1 py-5 text-[10px] font-mono uppercase tracking-widest active-tab' : 'flex-1 py-5 text-[10px] font-mono uppercase tracking-widest text-muted hover:text-gold';
-            document.getElementById('tab-tec').className = !isMeta ? 'flex-1 py-5 text-[10px] font-mono uppercase tracking-widest active-tab' : 'flex-1 py-5 text-[10px] font-mono uppercase tracking-widest text-muted hover:text-gold';
+            document.getElementById('tab-meta').className = isMeta ? 'flex-1 py-5 text-[10px] font-mono uppercase tracking-widest active-tab transition-all' : 'flex-1 py-5 text-[10px] font-mono uppercase tracking-widest text-muted hover:text-gold transition-all';
+            document.getElementById('tab-tec').className = !isMeta ? 'flex-1 py-5 text-[10px] font-mono uppercase tracking-widest active-tab transition-all' : 'flex-1 py-5 text-[10px] font-mono uppercase tracking-widest text-muted hover:text-gold transition-all';
             
             document.getElementById('res-meta').classList.toggle('hidden', !isMeta);
             document.getElementById('res-tec').classList.toggle('hidden', isMeta);
