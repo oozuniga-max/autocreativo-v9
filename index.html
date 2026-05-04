@@ -82,4 +82,86 @@
 
  <script>
  const apiKey = "AIzaSyD5BBfs8D6EWUtNC2Tx0rrlIGB5JhoDzyw";
- let currentBase64 
+ let currentBase64 = null;
+
+ const dropZone = document.getElementById('drop-zone');
+ const fileInput = document.getElementById('file-upload');
+ const preview = document.getElementById('image-preview');
+ const dropContent = document.getElementById('drop-content');
+ const scanner = document.getElementById('scanner');
+ const btnAnalyze = document.getElementById('btn-analyze');
+
+ // Subida de imagen
+ dropZone.addEventListener('click', () => fileInput.click());
+ 
+ fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+ 
+ dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.borderColor = '#D4AF37'; });
+ dropZone.addEventListener('dragleave', () => dropZone.style.borderColor = '');
+ dropZone.addEventListener('drop', e => {
+ e.preventDefault();
+ dropZone.style.borderColor = '';
+ handleFile(e.dataTransfer.files[0]);
+ });
+
+ function handleFile(file) {
+ if (!file) return;
+ const reader = new FileReader();
+ reader.onload = e => {
+ preview.src = e.target.result;
+ preview.classList.remove('hidden');
+ dropContent.classList.add('hidden');
+ currentBase64 = e.target.result.split(',')[1];
+ };
+ reader.readAsDataURL(file);
+ }
+
+ // ===================== ANÁLISIS REAL =====================
+ async function startAnalysis() {
+ if (!currentBase64) {
+ alert("Primero sube una imagen");
+ return;
+ }
+
+ btnAnalyze.innerText = "ANALIZANDO...";
+ btnAnalyze.disabled = true;
+ scanner.style.display = 'block';
+
+ const prompt = `Analiza este dibujo de forma profunda y detallada.
+ Responde en español de manera clara y útil.`;
+
+ try {
+ const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+ method: "POST",
+ headers: { "Content-Type": "application/json" },
+ body: JSON.stringify({
+ contents: [{
+ parts: [
+ { text: prompt },
+ { inlineData: { mimeType: "image/jpeg", data: currentBase64 } }
+ ]
+ }]
+ })
+ });
+
+ const data = await res.json();
+ const responseText = data.candidates[0].content.parts[0].text;
+
+ // Mostrar resultado
+ document.getElementById('results-empty').classList.add('hidden');
+ const dashboard = document.getElementById('results-dashboard');
+ dashboard.classList.remove('hidden');
+ document.getElementById('result-text').innerHTML = `<p class="whitespace-pre-wrap">${responseText}</p>`;
+
+ } catch (error) {
+ console.error(error);
+ alert("Error al conectar con Gemini. Inténtalo de nuevo.");
+ } finally {
+ btnAnalyze.innerText = "EJECUTAR ANÁLISIS DUAL";
+ btnAnalyze.disabled = false;
+ scanner.style.display = 'none';
+ }
+ }
+ </script>
+</body>
+</html>
