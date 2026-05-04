@@ -47,7 +47,7 @@
         </header>
 
         <div class="grid lg:grid-cols-12 gap-16">
-            <!-- LADO IZQUIERDO -->
+            <!-- LADO IZQUIERDO - SUBIDA -->
             <div class="lg:col-span-5">
                 <div class="glass-card rounded-3xl p-10 sticky top-28">
                     <div id="drop-zone" class="aspect-square border-2 border-dashed border-white/30 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:border-gold relative overflow-hidden">
@@ -84,30 +84,23 @@
         const scanner = document.getElementById('scanner');
         const statusDiv = document.getElementById('status');
 
-        // Drag & Drop + Click
+        // === SUBIDA DE IMAGEN (mejorado) ===
         dropZone.addEventListener('click', () => fileInput.click());
-        
+
         fileInput.addEventListener('change', e => {
             if (e.target.files[0]) handleFile(e.target.files[0]);
         });
 
-        dropZone.addEventListener('dragover', e => {
-            e.preventDefault();
-            dropZone.style.borderColor = '#D4AF37';
-        });
-
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.style.borderColor = '';
-        });
-
+        dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.borderColor = '#D4AF37'; });
+        dropZone.addEventListener('dragleave', () => dropZone.style.borderColor = '');
         dropZone.addEventListener('drop', e => {
             e.preventDefault();
             dropZone.style.borderColor = '';
-            handleFile(e.dataTransfer.files[0]);
+            if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
         });
 
         function handleFile(file) {
-            if (!file || !file.type.startsWith('image/')) return alert("Solo imágenes");
+            if (!file.type.startsWith('image/')) return alert("Solo se permiten imágenes");
             
             const reader = new FileReader();
             reader.onload = e => {
@@ -119,6 +112,7 @@
             reader.readAsDataURL(file);
         }
 
+        // === ANÁLISIS ===
         async function startAnalysis() {
             if (!currentBase64) return alert("Sube una imagen primero");
 
@@ -132,7 +126,7 @@
                     body: JSON.stringify({
                         contents: [{
                             parts: [
-                                { text: "Analiza este dibujo de forma detallada y creativa en español." },
+                                { text: "Analiza este dibujo creativo de forma profunda y detallada en español." },
                                 { inlineData: { mimeType: "image/jpeg", data: currentBase64 } }
                             ]
                         }]
@@ -142,11 +136,11 @@
                 const data = await res.json();
                 const text = data.candidates[0].content.parts[0].text;
 
-                statusDiv.innerHTML = `<div class="prose prose-invert">${text.replace(/\n/g, '<br><br>')}</div>`;
+                statusDiv.innerHTML = `<div class="prose prose-invert whitespace-pre-wrap">${text}</div>`;
 
             } catch (err) {
                 console.error(err);
-                statusDiv.innerHTML = `<p class="text-red-400">Error al analizar. Inténtalo de nuevo.</p>`;
+                statusDiv.innerHTML = `<p class="text-red-400">❌ Error al conectar con Gemini. Inténtalo de nuevo.</p>`;
             } finally {
                 scanner.style.display = 'none';
                 document.getElementById('btn-analyze').innerText = "EJECUTAR ANÁLISIS DUAL";
