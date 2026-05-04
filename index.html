@@ -31,80 +31,112 @@
     </script>
     <style>
         body { background-color: #050505; color: #F2F2F2; font-family: 'Outfit', sans-serif; overflow-x: hidden; }
-        .glass-card { background: #0D0D0F; border: 1px solid rgba(212, 175, 55, 0.2); box-shadow: 0 30px 60px -12px rgba(0,0,0,0.9); }
-        .tab-btn { transition: all 0.3s ease; opacity: 0.5; }
+        .glass-card { background: rgba(13, 13, 15, 0.8); border: 1px solid rgba(212, 175, 55, 0.15); backdrop-filter: blur(20px); box-shadow: 0 30px 60px -12px rgba(0,0,0,0.9); }
+        .tab-btn { transition: all 0.3s ease; opacity: 0.4; border-bottom: 2px solid transparent; }
         .tab-btn.active { color: #D4AF37; border-bottom: 2px solid #D4AF37; opacity: 1; }
-        .scanning-line { position: absolute; width: 100%; height: 3px; background: #D4AF37; top: 0; animation: scan 3s infinite ease-in-out; display: none; z-index: 30; }
-        @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
-        .loader { border: 3px solid rgba(212, 175, 55, 0.1); border-top: 3px solid #D4AF37; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+        .scanning-line { position: absolute; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, #D4AF37, transparent); top: 0; animation: scan 2.5s infinite linear; display: none; z-index: 30; }
+        @keyframes scan { 0% { top: 0%; opacity: 0; } 50% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+        .loader { border: 2px solid rgba(212, 175, 55, 0.1); border-top: 2px solid #D4AF37; border-radius: 50%; width: 18px; height: 18px; animation: spin 0.8s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .glow-text { text-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
     </style>
 </head>
 <body class="antialiased min-h-screen pb-20">
 
     <!-- MODAL DE API KEY -->
-    <div id="api-modal" class="fixed inset-0 z-[100] bg-dark/95 backdrop-blur-xl flex items-center justify-center p-6 hidden">
-        <div class="glass-card p-8 rounded-[2rem] max-w-md w-full border-gold/40">
-            <h3 class="text-gold font-serif italic text-2xl mb-2">Conexión Neural</h3>
-            <p class="text-muted text-[10px] mb-6 font-mono uppercase tracking-widest">Introduce tu Gemini API Key</p>
-            <input type="password" id="api-key-input" placeholder="AIzaSy..." class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-sm font-mono text-gold mb-4 focus:border-gold/50 transition-all">
-            <button onclick="saveApiKey()" class="w-full bg-gold text-dark font-bold py-4 rounded-xl text-[10px] uppercase tracking-widest hover:bg-goldBright transition-all shadow-lg shadow-gold/10">Establecer Vínculo</button>
-            <button onclick="toggleApiModal(false)" class="w-full mt-2 py-3 text-[9px] text-muted uppercase tracking-widest hover:text-white">Cerrar</button>
+    <div id="api-modal" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-2xl flex items-center justify-center p-6 hidden">
+        <div class="glass-card p-10 rounded-[2.5rem] max-w-md w-full border-gold/30">
+            <div class="w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center mb-6 mx-auto border border-gold/20">
+                <span class="text-gold">🔑</span>
+            </div>
+            <h3 class="text-gold font-serif italic text-3xl mb-2 text-center">Conexión Neural</h3>
+            <p class="text-muted text-[10px] mb-8 font-mono uppercase tracking-[0.2em] text-center">Protocolo de Identidad Gemini</p>
+            
+            <div class="space-y-4">
+                <input type="password" id="api-key-input" placeholder="Pega tu clave AIzaSy..." 
+                    class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm font-mono text-gold focus:border-gold/50 focus:ring-0 transition-all placeholder:text-muted/30">
+                
+                <button onclick="saveApiKey()" class="w-full bg-gold text-dark font-bold py-4 rounded-2xl text-[11px] uppercase tracking-widest hover:bg-goldBright transition-all shadow-[0_10px_20px_rgba(212,175,55,0.15)] transform active:scale-95">
+                    Establecer Vínculo
+                </button>
+                <button onclick="toggleApiModal(false)" class="w-full py-3 text-[10px] text-muted hover:text-white uppercase tracking-widest transition-colors">
+                    Volver
+                </button>
+            </div>
         </div>
     </div>
 
-    <nav class="p-6 flex justify-between items-center border-b border-white/5 bg-dark/80 backdrop-blur-md sticky top-0 z-50">
-        <div class="font-bold tracking-tighter text-xl text-gold">AUTOCREATIVO V9</div>
-        <div class="flex items-center gap-4">
-            <div id="api-indicator" class="hidden md:flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 text-[9px] font-mono uppercase tracking-tighter"></div>
-            <button onclick="toggleApiModal(true)" class="p-2 rounded-full hover:bg-white/5 transition-all text-muted hover:text-gold">⚙️</button>
+    <!-- NAVEGACIÓN -->
+    <nav class="p-6 flex justify-between items-center border-b border-white/5 bg-dark/60 backdrop-blur-xl sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-gold/10 border border-gold/20 flex items-center justify-center text-gold font-bold">A</div>
+            <div class="font-bold tracking-[0.2em] text-sm text-gold glow-text">AUTOCREATIVO V9</div>
+        </div>
+        <div class="flex items-center gap-6">
+            <div id="api-indicator" class="flex items-center gap-2 px-4 py-1.5 rounded-full border text-[10px] font-mono tracking-tighter transition-all"></div>
+            <button onclick="toggleApiModal(true)" class="text-muted hover:text-gold transition-colors text-lg">⚙️</button>
         </div>
     </nav>
 
-    <main class="max-w-6xl mx-auto mt-12 px-6">
-        <div class="grid lg:grid-cols-2 gap-12">
+    <main class="max-w-6xl mx-auto mt-16 px-6">
+        <div class="grid lg:grid-cols-2 gap-16 items-start">
             
+            <!-- PANEL DE ENTRADA -->
             <div class="space-y-8">
-                <div class="glass-card p-8 rounded-[2rem]">
-                    <h2 class="font-serif italic text-2xl mb-6 text-accent">Inyectar Visión</h2>
-                    <div class="relative aspect-video rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center bg-white/[0.01] overflow-hidden group">
+                <div class="glass-card p-10 rounded-[3rem] relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-8 opacity-5 font-serif italic text-6xl pointer-events-none">Vision</div>
+                    
+                    <h2 class="font-serif italic text-3xl mb-8 text-accent">Inyectar Visión</h2>
+                    
+                    <div class="relative aspect-[4/3] rounded-[2rem] border-2 border-dashed border-white/10 flex flex-col items-center justify-center bg-white/[0.02] overflow-hidden group transition-all hover:border-gold/30">
                         <input type="file" id="file-upload" class="absolute inset-0 opacity-0 cursor-pointer z-20" accept="image/*">
-                        <div id="placeholder-text" class="text-center group-hover:scale-110 transition-transform">
-                            <span class="text-4xl mb-2 block">🖼️</span>
-                            <p class="text-[10px] font-mono uppercase tracking-widest text-muted">Subir Archivo</p>
+                        
+                        <div id="placeholder-text" class="text-center group-hover:scale-105 transition-transform duration-500">
+                            <div class="w-20 h-20 bg-gold/5 rounded-full flex items-center justify-center mb-4 mx-auto border border-gold/10">
+                                <span class="text-3xl">🌌</span>
+                            </div>
+                            <p class="text-[10px] font-mono uppercase tracking-[0.3em] text-muted">Revelar Obra</p>
                         </div>
-                        <img id="preview" class="hidden absolute inset-0 w-full h-full object-contain p-4 z-10">
+
+                        <img id="preview" class="hidden absolute inset-0 w-full h-full object-contain p-6 z-10 animate-fade-in">
                         <div id="scanner" class="scanning-line"></div>
                     </div>
                     
-                    <button onclick="startAnalysis()" id="btn-analyze" class="w-full mt-8 bg-gold text-dark py-4 rounded-xl font-bold uppercase text-[10px] tracking-widest hover:bg-goldBright transition-all flex items-center justify-center gap-3">
-                        <span id="btn-text">Iniciar Análisis</span>
+                    <button onclick="startAnalysis()" id="btn-analyze" class="w-full mt-10 bg-gold text-dark py-5 rounded-2xl font-black uppercase text-[11px] tracking-[0.25em] hover:bg-goldBright transition-all flex items-center justify-center gap-4 shadow-xl shadow-gold/5 disabled:opacity-50">
+                        <span id="btn-text">Iniciar Transmutación</span>
                         <div id="loader" class="loader hidden"></div>
                     </button>
                 </div>
             </div>
 
-            <div id="results" class="space-y-6 hidden">
-                <div class="glass-card rounded-[2rem] overflow-hidden">
-                    <div class="flex border-b border-white/5 bg-white/[0.02]">
-                        <button onclick="setTab('meta')" id="tab-meta" class="tab-btn active flex-1 py-4 font-mono text-[9px] tracking-widest uppercase">Metafísico</button>
-                        <button onclick="setTab('tec')" id="tab-tec" class="tab-btn flex-1 py-4 font-mono text-[9px] tracking-widest uppercase">Técnico</button>
+            <!-- PANEL DE RESULTADOS -->
+            <div class="relative">
+                <div id="results" class="space-y-8 hidden animate-fade-in">
+                    <div class="glass-card rounded-[3rem] overflow-hidden">
+                        <div class="flex border-b border-white/5 bg-white/[0.03]">
+                            <button onclick="setTab('meta')" id="tab-meta" class="tab-btn active flex-1 py-5 font-mono text-[10px] tracking-[0.3em] uppercase">Metafísico</button>
+                            <button onclick="setTab('tec')" id="tab-tec" class="tab-btn flex-1 py-5 font-mono text-[10px] tracking-[0.3em] uppercase">Técnico</button>
+                        </div>
+                        <div class="p-10">
+                            <div id="content-meta" class="leading-relaxed text-accent italic font-serif text-xl first-letter:text-4xl first-letter:text-gold first-letter:font-bold first-letter:mr-1"></div>
+                            <div id="content-tec" class="leading-relaxed text-muted hidden text-sm font-sans tracking-wide"></div>
+                        </div>
                     </div>
-                    <div class="p-8">
-                        <div id="content-meta" class="leading-relaxed text-accent italic font-serif text-lg animate-pulse-slow"></div>
-                        <div id="content-tec" class="leading-relaxed text-muted hidden text-sm font-sans"></div>
+                    
+                    <div class="glass-card p-10 rounded-[3rem] text-center bg-gradient-to-br from-card via-dark to-black border-gold/10">
+                        <div class="text-gold/20 text-4xl font-serif mb-2">“</div>
+                        <p id="quote" class="text-gold font-serif italic mb-8 text-2xl leading-relaxed px-4"></p>
+                        <div class="flex flex-wrap gap-3 justify-center" id="tags"></div>
                     </div>
                 </div>
-                
-                <div class="glass-card p-8 rounded-[2rem] text-center bg-gradient-to-b from-card to-dark">
-                    <p id="quote" class="text-gold font-serif italic mb-6 text-xl leading-snug"></p>
-                    <div class="flex flex-wrap gap-2 justify-center" id="tags"></div>
-                </div>
-            </div>
 
-            <div id="empty-state" class="flex flex-col items-center justify-center opacity-10 py-20 lg:h-full">
-                <div class="w-20 h-20 border border-gold/30 rounded-full animate-pulse flex items-center justify-center text-gold">👁️</div>
-                <p class="mt-4 font-mono text-[9px] uppercase tracking-[0.3em]">Sistema de Análisis Pasivo</p>
+                <!-- ESTADO VACÍO -->
+                <div id="empty-state" class="flex flex-col items-center justify-center py-32 lg:h-full lg:py-0 border border-white/5 rounded-[3rem] bg-white/[0.01]">
+                    <div class="w-24 h-24 border border-gold/10 rounded-full animate-pulse flex items-center justify-center mb-6">
+                        <div class="w-16 h-16 border border-gold/20 rounded-full flex items-center justify-center text-gold/30 text-2xl">👁️</div>
+                    </div>
+                    <p class="font-mono text-[9px] uppercase tracking-[0.5em] text-muted/40">Análisis en Espera</p>
+                </div>
             </div>
         </div>
     </main>
@@ -114,17 +146,18 @@
 
         function updateIndicator() {
             const ind = document.getElementById('api-indicator');
-            ind.classList.remove('hidden');
             if(apiKey) {
-                ind.innerHTML = `<span class="text-gold">● ONLINE</span>`;
-                ind.classList.add('border-gold/20');
+                ind.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-gold mr-2"></span> <span class="text-gold">CONECTADO</span>`;
+                ind.className = "flex items-center px-4 py-1.5 rounded-full border border-gold/20 bg-gold/5 text-[9px] font-mono tracking-widest";
             } else {
-                ind.innerHTML = `<span class="text-red-500">● OFFLINE</span>`;
+                ind.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse mr-2"></span> <span class="text-red-400">DESCONECTADO</span>`;
+                ind.className = "flex items-center px-4 py-1.5 rounded-full border border-red-500/20 bg-red-500/5 text-[9px] font-mono tracking-widest";
             }
         }
 
         function toggleApiModal(show) {
             document.getElementById('api-modal').classList.toggle('hidden', !show);
+            if(show) document.getElementById('api-key-input').value = apiKey;
         }
 
         function saveApiKey() {
@@ -138,7 +171,7 @@
         }
 
         updateIndicator();
-        if(!apiKey) setTimeout(() => toggleApiModal(true), 1000);
+        if(!apiKey) setTimeout(() => toggleApiModal(true), 1500);
 
         let currentImage = null;
         const fileInput = document.getElementById('file-upload');
@@ -159,66 +192,66 @@
         });
 
         async function startAnalysis() {
-            if(!currentImage) return alert("Sube una imagen.");
+            if(!currentImage) return;
             if(!apiKey) return toggleApiModal(true);
 
             const btn = document.getElementById('btn-analyze');
             const loader = document.getElementById('loader');
             const scanner = document.getElementById('scanner');
+            const btnText = document.getElementById('btn-text');
 
             btn.disabled = true;
+            btnText.innerText = "PROCESANDO...";
             loader.classList.remove('hidden');
             scanner.style.display = 'block';
 
-            // Usamos Gemini 1.5 Flash para mayor estabilidad de cuota
             const model = "gemini-1.5-flash"; 
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
-            const prompt = `Analiza esta obra artística. Proporciona un análisis profundo y técnico. Responde solo en JSON: 
-            {"meta": "Análisis poético espiritual", "tec": "Análisis técnico de trazo y color", "quote": "Frase corta definitoria", "tags": ["Tag1", "Tag2"]}`;
+            const prompt = `Analiza esta imagen como una obra de arte psicográfica. 
+            Responde ÚNICAMENTE en formato JSON plano, sin markdown, sin texto extra.
+            Estructura: {"meta": "párrafo poético largo", "tec": "párrafo técnico largo", "quote": "frase corta", "tags": ["tag1", "tag2", "tag3"]}`;
 
             try {
-                // Implementación de reintentos básicos (Exponential Backoff simple)
-                let response;
-                let retries = 3;
-                while(retries > 0) {
-                    response = await fetch(url, {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({
-                            contents: [{
-                                parts: [
-                                    {text: prompt},
-                                    {inlineData: {mimeType: "image/jpeg", data: currentImage}}
-                                ]
-                            }]
-                        })
-                    });
-                    if(response.ok) break;
-                    retries--;
-                    await new Promise(r => setTimeout(r, 2000));
-                }
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [
+                                {text: prompt},
+                                {inlineData: {mimeType: "image/jpeg", data: currentImage}}
+                            ]
+                        }]
+                    })
+                });
 
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    if(response.status === 400) throw new Error("API_KEY_INVALID");
-                    if(response.status === 429) throw new Error("CUOTA_EXCEDIDA");
-                    throw new Error("API_ERROR");
+                    const errBody = await response.json();
+                    console.error("Error de API:", errBody);
+                    throw new Error(response.status === 400 ? "KEY_ERROR" : "API_ERROR");
                 }
 
                 const data = await response.json();
-                const rawText = data.candidates[0].content.parts[0].text;
-                // Limpieza de posibles markdowns en la respuesta JSON
-                const cleanJson = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
-                showResults(JSON.parse(cleanJson));
+                let rawText = data.candidates[0].content.parts[0].text;
+                
+                // Limpieza agresiva de la respuesta para asegurar JSON válido
+                const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+                if (!jsonMatch) throw new Error("JSON_FORMAT_ERROR");
+                
+                const cleanJson = JSON.parse(jsonMatch[0]);
+                showResults(cleanJson);
                 
             } catch (err) {
-                console.error(err);
-                if(err.message === "API_KEY_INVALID") alert("La clave es incorrecta. Haz clic en ⚙️ para cambiarla.");
-                else if(err.message === "CUOTA_EXCEDIDA") alert("Has alcanzado el límite gratuito de Google. Espera un minuto.");
-                else alert("Error de conexión. Revisa que tu clave de Google AI Studio sea correcta.");
+                console.error("Error completo:", err);
+                if(err.message === "KEY_ERROR") {
+                    alert("La clave API parece no tener permisos o ser incorrecta. Verifica en Google AI Studio.");
+                } else {
+                    alert("Error de conexión. Asegúrate de que la clave sea correcta y el archivo no sea demasiado pesado.");
+                }
             } finally {
                 btn.disabled = false;
+                btnText.innerText = "INICIAR TRANSMUTACIÓN";
                 loader.classList.add('hidden');
                 scanner.style.display = 'none';
             }
@@ -230,11 +263,13 @@
             document.getElementById('content-meta').innerText = data.meta;
             document.getElementById('content-tec').innerText = data.tec;
             document.getElementById('quote').innerText = data.quote;
+            
             const tagsDiv = document.getElementById('tags');
             tagsDiv.innerHTML = '';
             data.tags.forEach(t => {
-                tagsDiv.innerHTML += `<span class="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[9px] font-mono text-gold uppercase">${t}</span>`;
+                tagsDiv.innerHTML += `<span class="px-4 py-1.5 bg-gold/5 border border-gold/20 rounded-full text-[9px] font-mono text-gold uppercase tracking-widest">${t}</span>`;
             });
+            
             document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
         }
 
