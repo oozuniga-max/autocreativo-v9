@@ -24,6 +24,8 @@
     <style>
         body { background-color: #050505; color: #F2F2F2; font-family: 'Outfit', sans-serif; }
         .glass-card { background: #0D0D0F; border: 1px solid rgba(212, 175, 55, 0.2); }
+        .tab-btn { transition: all 0.3s; }
+        .tab-btn.active { color: #D4AF37; border-bottom: 2px solid #D4AF37; }
         .scanning-line { position: absolute; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, #D4AF37, transparent); animation: scan 3s infinite; display: none; }
         @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
     </style>
@@ -47,7 +49,7 @@
         </header>
 
         <div class="grid lg:grid-cols-12 gap-16">
-            <!-- LADO IZQUIERDO - SUBIDA -->
+            <!-- LADO IZQUIERDO -->
             <div class="lg:col-span-5">
                 <div class="glass-card rounded-3xl p-10 sticky top-28">
                     <div id="drop-zone" class="aspect-square border-2 border-dashed border-white/30 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:border-gold relative overflow-hidden">
@@ -84,24 +86,20 @@
         const scanner = document.getElementById('scanner');
         const statusDiv = document.getElementById('status');
 
-        // === SUBIDA DE IMAGEN (mejorado) ===
+        // Drag & Drop + Click
         dropZone.addEventListener('click', () => fileInput.click());
-
-        fileInput.addEventListener('change', e => {
-            if (e.target.files[0]) handleFile(e.target.files[0]);
-        });
+        fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
 
         dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.borderColor = '#D4AF37'; });
         dropZone.addEventListener('dragleave', () => dropZone.style.borderColor = '');
         dropZone.addEventListener('drop', e => {
             e.preventDefault();
             dropZone.style.borderColor = '';
-            if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+            handleFile(e.dataTransfer.files[0]);
         });
 
         function handleFile(file) {
-            if (!file.type.startsWith('image/')) return alert("Solo se permiten imágenes");
-            
+            if (!file || !file.type.startsWith('image/')) return;
             const reader = new FileReader();
             reader.onload = e => {
                 preview.src = e.target.result;
@@ -112,7 +110,6 @@
             reader.readAsDataURL(file);
         }
 
-        // === ANÁLISIS ===
         async function startAnalysis() {
             if (!currentBase64) return alert("Sube una imagen primero");
 
@@ -126,7 +123,7 @@
                     body: JSON.stringify({
                         contents: [{
                             parts: [
-                                { text: "Analiza este dibujo creativo de forma profunda y detallada en español." },
+                                { text: "Analiza este dibujo creativo bajo una perspectiva dual: metafísica y técnica. Sé detallado." },
                                 { inlineData: { mimeType: "image/jpeg", data: currentBase64 } }
                             ]
                         }]
@@ -136,11 +133,11 @@
                 const data = await res.json();
                 const text = data.candidates[0].content.parts[0].text;
 
-                statusDiv.innerHTML = `<div class="prose prose-invert whitespace-pre-wrap">${text}</div>`;
+                statusDiv.innerHTML = `<div class="prose prose-invert">${text.replace(/\n/g, '<br><br>')}</div>`;
 
             } catch (err) {
                 console.error(err);
-                statusDiv.innerHTML = `<p class="text-red-400">❌ Error al conectar con Gemini. Inténtalo de nuevo.</p>`;
+                statusDiv.innerHTML = `<p class="text-red-400">❌ Error al conectar. Inténtalo de nuevo.</p>`;
             } finally {
                 scanner.style.display = 'none';
                 document.getElementById('btn-analyze').innerText = "EJECUTAR ANÁLISIS DUAL";
