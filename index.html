@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoCreativo V10 | Diagnóstico Directo</title>
+    <title>AutoCreativo V10 | Conexión Blindada</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -34,40 +34,40 @@
         .glass-card { background: rgba(13, 13, 15, 0.9); border: 1px solid rgba(212, 175, 55, 0.15); backdrop-filter: blur(20px); }
         .loader { border: 2px solid rgba(212, 175, 55, 0.1); border-top: 2px solid #D4AF37; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .tab-btn.active { color: #D4AF37; border-bottom: 2px solid #D4AF37; }
         .scanning-line { position: absolute; width: 100%; height: 2px; background: #D4AF37; top: 0; animation: scan 2.5s infinite linear; display: none; z-index: 30; box-shadow: 0 0 15px #D4AF37; }
         @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
+        .active-tab { color: #D4AF37; border-bottom: 2px solid #D4AF37; }
     </style>
 </head>
 <body class="antialiased min-h-screen">
 
-    <!-- MODAL DE CONFIGURACIÓN -->
+    <!-- CONFIGURATION MODAL -->
     <div id="api-modal" class="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-6 hidden">
         <div class="glass-card p-10 rounded-[2.5rem] max-w-md w-full border-gold/30">
-            <h3 class="text-gold font-serif italic text-2xl mb-6 text-center">Configuración de Enlace</h3>
+            <h3 class="text-gold font-serif italic text-2xl mb-6 text-center">Enlace de Inteligencia</h3>
             <div class="space-y-4">
                 <div>
-                    <label class="text-[10px] text-muted uppercase tracking-widest mb-2 block ml-2">Google Gemini API Key</label>
-                    <input type="password" id="api-key-input" placeholder="AIzaSy..." 
-                        class="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-sm font-mono text-gold focus:border-gold/50 outline-none">
+                    <label class="text-[10px] text-muted uppercase tracking-widest mb-2 block ml-2">API Key de Google Gemini</label>
+                    <input type="password" id="api-key-input" placeholder="Pega tu clave AIza..." 
+                        class="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-sm font-mono text-gold focus:border-gold/50 outline-none transition-all">
                 </div>
-                <button onclick="saveApiKey()" class="w-full bg-gold text-dark font-bold py-4 rounded-xl text-[11px] uppercase tracking-widest hover:bg-goldBright transition-all">
-                    Guardar y Conectar
+                <button onclick="saveApiKey()" class="w-full bg-gold text-dark font-bold py-4 rounded-xl text-[11px] uppercase tracking-widest hover:bg-goldBright shadow-lg shadow-gold/10 transition-all">
+                    Establecer Conexión
                 </button>
-                <p class="text-[9px] text-muted text-center leading-relaxed">Asegúrate de que la API Key sea de Google AI Studio y no esté restringida.</p>
+                <p class="text-[9px] text-muted text-center leading-relaxed">Obtén tu clave gratuita en <a href="https://aistudio.google.com/" target="_blank" class="text-gold underline">Google AI Studio</a>.</p>
             </div>
         </div>
     </div>
 
-    <!-- HEADER -->
+    <!-- NAVIGATION -->
     <nav class="p-6 flex justify-between items-center border-b border-white/5 bg-dark/50 backdrop-blur-md sticky top-0 z-40">
         <div class="flex items-center gap-4">
-            <div class="w-10 h-10 rounded-xl bg-gold/10 border border-gold/30 flex items-center justify-center text-gold font-bold">A</div>
-            <div class="font-bold tracking-[0.2em] text-sm text-gold">AUTOCREATIVO V10</div>
+            <div class="w-10 h-10 rounded-xl bg-gold/10 border border-gold/30 flex items-center justify-center text-gold font-bold shadow-inner">A</div>
+            <div class="font-bold tracking-[0.2em] text-sm text-gold hidden sm:block">AUTOCREATIVO V10</div>
         </div>
-        <div class="flex items-center gap-6">
+        <div class="flex items-center gap-4">
             <div id="status-tag" class="text-[9px] font-mono tracking-widest px-4 py-1.5 rounded-full border"></div>
-            <button onclick="toggleApiModal(true)" class="text-muted hover:text-gold transition-colors">
+            <button onclick="toggleApiModal(true)" class="p-2 text-muted hover:text-gold transition-all">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
             </button>
         </div>
@@ -76,42 +76,42 @@
     <main class="max-w-6xl mx-auto mt-12 px-6 pb-20">
         <div class="grid lg:grid-cols-2 gap-12">
             
-            <!-- ENTRADA -->
+            <!-- INPUT SECTION -->
             <div class="space-y-8">
-                <div class="glass-card p-10 rounded-[3rem]">
+                <div class="glass-card p-8 sm:p-10 rounded-[3rem]">
                     <h2 class="font-serif italic text-3xl mb-8">Captura Visual</h2>
                     
-                    <div class="relative aspect-video rounded-[2rem] border-2 border-dashed border-white/10 flex flex-col items-center justify-center bg-white/[0.02] overflow-hidden hover:border-gold/30 transition-all">
+                    <div class="relative aspect-video rounded-[2rem] border-2 border-dashed border-white/10 flex flex-col items-center justify-center bg-white/[0.02] overflow-hidden hover:border-gold/30 transition-all group">
                         <input type="file" id="image-input" class="absolute inset-0 opacity-0 cursor-pointer z-20" accept="image/*">
-                        <div id="drop-text" class="text-center">
+                        <div id="drop-text" class="text-center group-hover:scale-110 transition-transform">
                             <span class="text-4xl block mb-4">🖼️</span>
-                            <p class="text-[10px] font-mono text-muted uppercase tracking-widest">Cargar Imagen</p>
+                            <p class="text-[10px] font-mono text-muted uppercase tracking-widest">Haz clic o arrastra</p>
                         </div>
-                        <img id="img-preview" class="hidden absolute inset-0 w-full h-full object-contain p-6 z-10">
+                        <img id="img-preview" class="hidden absolute inset-0 w-full h-full object-contain p-6 z-10 bg-dark">
                         <div id="scan-line" class="scanning-line"></div>
                     </div>
                     
-                    <button onclick="processImage()" id="main-btn" class="w-full mt-8 bg-gold text-dark py-5 rounded-2xl font-bold uppercase text-[11px] tracking-widest hover:bg-goldBright transition-all flex items-center justify-center gap-4">
+                    <button onclick="processImage()" id="main-btn" class="w-full mt-8 bg-gold text-dark py-5 rounded-2xl font-bold uppercase text-[11px] tracking-widest hover:bg-goldBright shadow-xl shadow-gold/5 transition-all flex items-center justify-center gap-4 group">
                         <span id="btn-label">Analizar Obra</span>
                         <div id="btn-loader" class="loader hidden"></div>
                     </button>
                 </div>
             </div>
 
-            <!-- SALIDA -->
-            <div id="output-area" class="opacity-40 transition-opacity duration-500">
-                <div class="glass-card rounded-[3rem] overflow-hidden min-h-[400px]">
-                    <div class="flex border-b border-white/5">
-                        <button onclick="switchTab('meta')" id="tab-meta" class="flex-1 py-5 text-[10px] font-mono uppercase tracking-widest active">Análisis</button>
-                        <button onclick="switchTab('tec')" id="tab-tec" class="flex-1 py-5 text-[10px] font-mono uppercase tracking-widest">Técnico</button>
+            <!-- OUTPUT SECTION -->
+            <div id="output-area" class="opacity-40 transition-opacity duration-700">
+                <div class="glass-card rounded-[3rem] overflow-hidden min-h-[450px] flex flex-col">
+                    <div class="flex border-b border-white/5 bg-white/[0.02]">
+                        <button onclick="switchTab('meta')" id="tab-meta" class="flex-1 py-5 text-[10px] font-mono uppercase tracking-widest active-tab transition-all">Esencia</button>
+                        <button onclick="switchTab('tec')" id="tab-tec" class="flex-1 py-5 text-[10px] font-mono uppercase tracking-widest text-muted hover:text-gold transition-all">Técnica</button>
                     </div>
-                    <div class="p-10">
-                        <div id="res-meta" class="font-serif italic text-xl leading-relaxed">Esperando entrada...</div>
-                        <div id="res-tec" class="hidden text-muted text-sm leading-relaxed whitespace-pre-wrap"></div>
+                    <div class="p-10 flex-grow">
+                        <div id="res-meta" class="font-serif italic text-2xl leading-relaxed text-accent">Sube una imagen para comenzar el diagnóstico.</div>
+                        <div id="res-tec" class="hidden text-muted text-sm leading-relaxed whitespace-pre-wrap font-mono bg-black/30 p-4 rounded-xl border border-white/5"></div>
                     </div>
                     <div class="p-10 pt-0">
-                        <div id="res-quote" class="text-gold font-serif text-lg mb-6 border-t border-gold/10 pt-6"></div>
-                        <div id="res-tags" class="flex flex-wrap gap-2"></div>
+                        <div id="res-quote" class="text-gold font-serif text-xl mb-6 border-t border-gold/10 pt-6 italic text-center"></div>
+                        <div id="res-tags" class="flex flex-wrap gap-2 justify-center"></div>
                     </div>
                 </div>
             </div>
@@ -125,24 +125,27 @@
         function updateStatus() {
             const tag = document.getElementById('status-tag');
             if(KEY) {
-                tag.innerText = "SISTEMA LISTO";
+                tag.innerText = "ENLACE ACTIVO";
                 tag.className = "text-[9px] font-mono tracking-widest px-4 py-1.5 rounded-full border border-gold/30 bg-gold/5 text-gold";
             } else {
-                tag.innerText = "REQUIERE CLAVE";
+                tag.innerText = "SIN CONEXIÓN";
                 tag.className = "text-[9px] font-mono tracking-widest px-4 py-1.5 rounded-full border border-red-500/30 bg-red-500/5 text-red-500";
             }
         }
 
         function toggleApiModal(show) {
             document.getElementById('api-modal').classList.toggle('hidden', !show);
-            if(show) document.getElementById('api-key-input').value = KEY;
+            if(show) document.getElementById('api-key-input').focus();
         }
 
         function saveApiKey() {
-            KEY = document.getElementById('api-key-input').value.trim();
-            localStorage.setItem('gemini_api_key', KEY);
-            updateStatus();
-            toggleApiModal(false);
+            const input = document.getElementById('api-key-input').value.trim();
+            if(input) {
+                KEY = input;
+                localStorage.setItem('gemini_api_key', KEY);
+                updateStatus();
+                toggleApiModal(false);
+            }
         }
 
         document.getElementById('image-input').addEventListener('change', function(e) {
@@ -154,16 +157,24 @@
                 const img = new Image();
                 img.src = event.target.result;
                 img.onload = function() {
-                    // Compresión básica
                     const canvas = document.createElement('canvas');
-                    const scale = Math.min(1000 / img.width, 1000 / img.height, 1);
-                    canvas.width = img.width * scale;
-                    canvas.height = img.height * scale;
+                    const MAX_SIZE = 800; // Reducimos para mayor velocidad y menos errores de carga
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
+                    } else {
+                        if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
                     const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0, width, height);
                     
-                    base64Data = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
-                    document.getElementById('img-preview').src = event.target.result;
+                    base64Data = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
+                    document.getElementById('img-preview').src = canvas.toDataURL('image/jpeg');
                     document.getElementById('img-preview').classList.remove('hidden');
                     document.getElementById('drop-text').classList.add('hidden');
                     document.getElementById('output-area').classList.add('opacity-40');
@@ -174,7 +185,7 @@
 
         async function processImage() {
             if(!base64Data) return;
-            if(!KEY) return toggleApiModal(true);
+            if(!KEY) { toggleApiModal(true); return; }
 
             const btn = document.getElementById('main-btn');
             const label = document.getElementById('btn-label');
@@ -182,85 +193,115 @@
             const scanner = document.getElementById('scan-line');
 
             btn.disabled = true;
-            label.innerText = "PROCESANDO...";
+            label.innerText = "CONECTANDO CON GEMINI...";
             loader.classList.remove('hidden');
             scanner.style.display = 'block';
 
-            // Intento con múltiples modelos para asegurar éxito
-            const models = ["gemini-1.5-flash", "gemini-2.0-flash-exp"];
-            let success = false;
+            const prompt = `Actúa como un experto en psicología del arte y automatismo. Analiza esta imagen y genera un diagnóstico en formato JSON puro: 
+            {
+                "meta": "Una descripción profunda, mística y poética de la esencia de la obra (máx 60 palabras).",
+                "tec": "Análisis técnico de trazos, entropía y posibles estados de disociación motora observados.",
+                "quote": "Una frase corta inspiradora sobre el proceso creativo.",
+                "tags": ["Tag1", "Tag2", "Tag3"]
+            }
+            IMPORTANTE: Solo responde el JSON, sin texto adicional ni bloques de código markdown.`;
 
-            for(const model of models) {
+            // Estrategia de reintentos con diferentes modelos
+            const endpoints = [
+                `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`,
+                `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${KEY}`
+            ];
+
+            let lastError = "";
+
+            for(const url of endpoints) {
                 try {
-                    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${KEY}`, {
+                    const response = await fetch(url, {
                         method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             contents: [{
                                 parts: [
-                                    {text: "Actúa como un experto en arte y psicología. Analiza la imagen y responde con este JSON: {\"meta\": \"descripción poética\", \"tec\": \"detalle técnico\", \"quote\": \"frase corta\", \"tags\": [\"t1\", \"t2\"]}. No escribas nada más que el JSON."},
-                                    {inlineData: {mimeType: "image/jpeg", data: base64Data}}
+                                    { text: prompt },
+                                    { inlineData: { mimeType: "image/jpeg", data: base64Data } }
                                 ]
                             }]
                         })
                     });
 
-                    const data = await resp.json();
+                    const result = await response.json();
 
-                    if(resp.ok) {
-                        const text = data.candidates[0].content.parts[0].text;
-                        const cleanJson = JSON.parse(text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1));
-                        renderResults(cleanJson);
-                        success = true;
-                        break;
+                    if (response.ok && result.candidates?.[0]?.content?.parts?.[0]?.text) {
+                        const rawText = result.candidates[0].content.parts[0].text;
+                        // Limpieza agresiva por si la IA añade ```json
+                        const jsonString = rawText.match(/\{[\s\S]*\}/)?.[0] || rawText;
+                        const data = JSON.parse(jsonString);
+                        renderResults(data);
+                        showFinalStatus("success", btn, label);
+                        return; // Éxito, salimos de la función
                     } else {
-                        // Manejo de errores específicos para que el usuario sepa qué pasa
-                        if(data.error?.status === "UNAUTHENTICATED") label.innerText = "CLAVE INVÁLIDA";
-                        else if(data.error?.status === "RESOURCE_EXHAUSTED") label.innerText = "LÍMITE EXCEDIDO";
-                        else label.innerText = "ERROR " + resp.status;
+                        lastError = result.error?.message || "Error desconocido";
+                        console.error("Fallo en endpoint:", url, result);
                     }
-                } catch(e) {
-                    label.innerText = "ERROR CONEXIÓN";
+                } catch (e) {
+                    lastError = e.message;
+                    console.error("Error de red en endpoint:", url, e);
                 }
             }
 
-            if(success) {
-                label.innerText = "ANÁLISIS COMPLETO";
-                btn.classList.replace('bg-gold', 'bg-green-600');
-                setTimeout(() => {
-                    label.innerText = "Analizar Obra";
-                    btn.classList.replace('bg-green-600', 'bg-gold');
-                }, 2000);
-            } else {
-                btn.classList.replace('bg-gold', 'bg-red-600');
-                setTimeout(() => {
-                    label.innerText = "Analizar Obra";
-                    btn.classList.replace('bg-red-600', 'bg-gold');
-                }, 3000);
-            }
-
-            btn.disabled = false;
+            // Si llegamos aquí, ambos fallaron
+            showFinalStatus("error", btn, label, lastError);
             loader.classList.add('hidden');
             scanner.style.display = 'none';
+        }
+
+        function showFinalStatus(type, btn, label, errorMsg = "") {
+            const loader = document.getElementById('btn-loader');
+            const scanner = document.getElementById('scan-line');
+            
+            loader.classList.add('hidden');
+            scanner.style.display = 'none';
+            btn.disabled = false;
+
+            if(type === "success") {
+                label.innerText = "¡ANÁLISIS EXITOSO!";
+                btn.className = btn.className.replace('bg-gold', 'bg-green-600');
+                setTimeout(() => {
+                    label.innerText = "Analizar Obra";
+                    btn.className = btn.className.replace('bg-green-600', 'bg-gold');
+                }, 3000);
+            } else {
+                label.innerText = errorMsg.includes("API key") ? "CLAVE INVÁLIDA" : "ERROR DE VÍNCULO";
+                btn.className = btn.className.replace('bg-gold', 'bg-red-600');
+                console.error("Error crítico:", errorMsg);
+                setTimeout(() => {
+                    label.innerText = "Reintentar Análisis";
+                    btn.className = btn.className.replace('bg-red-600', 'bg-gold');
+                }, 3000);
+            }
         }
 
         function renderResults(data) {
             document.getElementById('output-area').classList.remove('opacity-40');
             document.getElementById('res-meta').innerText = data.meta;
             document.getElementById('res-tec').innerText = data.tec;
-            document.getElementById('res-quote').innerText = `"${data.quote}"`;
+            document.getElementById('res-quote').innerText = data.quote;
             
             const tagContainer = document.getElementById('res-tags');
             tagContainer.innerHTML = '';
             data.tags.forEach(t => {
-                tagContainer.innerHTML += `<span class="px-3 py-1 bg-gold/10 border border-gold/20 rounded-md text-[9px] font-mono text-gold uppercase tracking-widest">${t}</span>`;
+                const span = document.createElement('span');
+                span.className = "px-3 py-1 bg-gold/10 border border-gold/20 rounded-lg text-[9px] font-mono text-gold uppercase tracking-widest";
+                span.innerText = t;
+                tagContainer.appendChild(span);
             });
         }
 
         function switchTab(type) {
             const isMeta = type === 'meta';
-            document.getElementById('tab-meta').classList.toggle('active', isMeta);
-            document.getElementById('tab-tec').classList.toggle('active', !isMeta);
+            document.getElementById('tab-meta').className = isMeta ? 'flex-1 py-5 text-[10px] font-mono uppercase tracking-widest active-tab' : 'flex-1 py-5 text-[10px] font-mono uppercase tracking-widest text-muted hover:text-gold';
+            document.getElementById('tab-tec').className = !isMeta ? 'flex-1 py-5 text-[10px] font-mono uppercase tracking-widest active-tab' : 'flex-1 py-5 text-[10px] font-mono uppercase tracking-widest text-muted hover:text-gold';
+            
             document.getElementById('res-meta').classList.toggle('hidden', !isMeta);
             document.getElementById('res-tec').classList.toggle('hidden', isMeta);
         }
