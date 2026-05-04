@@ -204,9 +204,9 @@
                 "quote": "Frase inspiradora breve.",
                 "tags": ["Tag1", "Tag2", "Tag3"]
             }
-            IMPORTANTE: Responde solo el JSON, sin bloques de código ni explicaciones extra.`;
+            IMPORTANTE: Responde solo el JSON puro, sin decoradores markdown ni bloques de código.`;
 
-            // Corrección de Endpoint: v1beta es más flexible para modelos flash
+            // Endpoint actualizado a v1beta (más estable para modelos gratuitos)
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`;
 
             try {
@@ -226,26 +226,29 @@
                 const result = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(result.error?.message || `Error ${response.status}`);
+                    const errMsg = result.error?.message || `Error ${response.status}`;
+                    throw new Error(errMsg);
                 }
 
                 if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
                     let rawText = result.candidates[0].content.parts[0].text;
                     
-                    // Limpieza ultra-agresiva del JSON recibido
+                    // Limpieza ultra-segura de la respuesta JSON
                     const jsonStart = rawText.indexOf('{');
                     const jsonEnd = rawText.lastIndexOf('}') + 1;
-                    const jsonString = rawText.substring(jsonStart, jsonEnd);
+                    if(jsonStart === -1 || jsonEnd === 0) throw new Error("Formato de IA inválido");
                     
+                    const jsonString = rawText.substring(jsonStart, jsonEnd);
                     const data = JSON.parse(jsonString);
+                    
                     renderResults(data);
                     showFinalStatus("success", btn, label);
                 } else {
-                    throw new Error("Respuesta de IA vacía o bloqueada.");
+                    throw new Error("Respuesta bloqueada por filtros de seguridad.");
                 }
 
             } catch (e) {
-                console.error("Error en la petición:", e);
+                console.error("Error en la conexión:", e);
                 showFinalStatus("error", btn, label, e.message);
             } finally {
                 loader.classList.add('hidden');
@@ -264,8 +267,15 @@
                     btn.classList.replace('bg-green-600', 'bg-gold');
                 }, 3000);
             } else {
-                // Manejo visual de error
-                label.innerText = errorMsg.includes("404") ? "MODELO NO DISPONIBLE" : "ERROR DE CONEXIÓN";
+                // Manejo detallado de errores visuales
+                if(errorMsg.includes("403") || errorMsg.includes("key")) {
+                    label.innerText = "API KEY INVÁLIDA";
+                } else if(errorMsg.includes("404")) {
+                    label.innerText = "ENDPOINT NO ENCONTRADO";
+                } else {
+                    label.innerText = "ERROR DE VÍNCULO";
+                }
+                
                 btn.classList.replace('bg-gold', 'bg-red-600');
                 setTimeout(() => {
                     label.innerText = "Reintentar Análisis";
@@ -276,13 +286,13 @@
 
         function renderResults(data) {
             document.getElementById('output-area').classList.remove('opacity-40');
-            document.getElementById('res-meta').innerText = data.meta || "Sin descripción.";
-            document.getElementById('res-tec').innerText = data.tec || "Sin análisis técnico.";
+            document.getElementById('res-meta').innerText = data.meta || "Esencia no procesada.";
+            document.getElementById('res-tec').innerText = data.tec || "Técnica no procesada.";
             document.getElementById('res-quote').innerText = data.quote || "";
             
             const tagContainer = document.getElementById('res-tags');
             tagContainer.innerHTML = '';
-            if(data.tags) {
+            if(data.tags && Array.isArray(data.tags)) {
                 data.tags.forEach(t => {
                     const span = document.createElement('span');
                     span.className = "px-3 py-1 bg-gold/10 border border-gold/20 rounded-lg text-[9px] font-mono text-gold uppercase tracking-widest";
