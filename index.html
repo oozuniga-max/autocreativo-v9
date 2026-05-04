@@ -8,63 +8,72 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#050505',
+                        gold: '#D4AF37',
+                        goldBright: '#FFD700'
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         body { background-color: #050505; color: #F2F2F2; font-family: 'Outfit', sans-serif; }
-        .glass-card { background: #0D0D0F; border: 1px solid rgba(212, 175, 55, 0.25); box-shadow: 0 30px 60px -12px rgba(0,0,0,0.8); }
+        .glass-card { background: #0D0D0F; border: 1px solid rgba(212, 175, 55, 0.2); }
         .scanning-line { position: absolute; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, #D4AF37, transparent); animation: scan 3s infinite; display: none; }
         @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
-        .loader { border: 3px solid rgba(212,175,55,0.2); border-top-color: #D4AF37; border-radius: 50%; width: 32px; height: 32px; animation: spin 1s linear infinite; }
     </style>
 </head>
 <body class="antialiased min-h-screen">
 
-    <nav class="fixed w-full z-50 bg-[#050505]/95 backdrop-blur-xl border-b border-white/10">
+    <nav class="fixed w-full z-50 bg-dark/95 backdrop-blur-xl border-b border-white/10">
         <div class="max-w-7xl mx-auto px-8 h-24 flex items-center">
             <div class="flex items-center gap-4">
-                <div class="w-10 h-10 border-2 border-[#D4AF37] flex items-center justify-center font-bold text-[#D4AF37] rotate-45">
+                <div class="w-10 h-10 border-2 border-gold flex items-center justify-center font-bold text-gold rotate-45">
                     <span class="-rotate-45">V9</span>
                 </div>
-                <span class="font-extrabold tracking-[0.3em] text-sm uppercase">AutoCreativo <span class="text-[#D4AF37]">Dual</span></span>
+                <span class="font-extrabold tracking-[0.3em] text-sm uppercase">AutoCreativo <span class="text-gold">Dual</span></span>
             </div>
         </div>
     </nav>
 
     <main class="pt-44 pb-32 px-8 max-w-7xl mx-auto">
         <header class="text-center mb-20">
-            <h1 class="text-6xl lg:text-8xl font-bold tracking-tighter">El Alma en el <span class="text-[#D4AF37] font-serif italic">Trazo</span></h1>
+            <h1 class="text-6xl lg:text-8xl font-bold tracking-tighter">El Alma en el <span class="text-gold font-serif italic">Trazo</span></h1>
         </header>
 
         <div class="grid lg:grid-cols-12 gap-16">
-            <!-- Subida -->
+            <!-- LADO IZQUIERDO -->
             <div class="lg:col-span-5">
                 <div class="glass-card rounded-3xl p-10 sticky top-28">
-                    <div id="drop-zone" class="aspect-square border-2 border-dashed border-white/40 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:border-[#D4AF37] relative overflow-hidden">
+                    <div id="drop-zone" class="aspect-square border-2 border-dashed border-white/30 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:border-gold relative overflow-hidden">
                         <input type="file" id="file-upload" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer z-10">
-                        <div id="drop-content" class="text-center z-0">
+                        <div id="drop-content" class="text-center">
                             <div class="text-6xl mb-6">✨</div>
-                            <p class="font-mono text-[#D4AF37] text-lg">ARRASTRA O HAZ CLIC</p>
-                            <p class="text-sm text-gray-400">Sube tu dibujo</p>
+                            <p class="font-mono text-gold">ARRASTRA O HAZ CLIC</p>
                         </div>
                         <img id="image-preview" class="hidden absolute inset-0 w-full h-full object-contain p-6">
                         <div id="scanner" class="scanning-line"></div>
                     </div>
 
-                    <button onclick="startAnalysis()" id="btn-analyze" 
-                            class="w-full mt-8 bg-[#D4AF37] hover:bg-[#FFD700] text-black font-black py-6 rounded-2xl text-sm tracking-widest">
+                    <button onclick="startAnalysis()" id="btn-analyze" class="w-full mt-8 bg-gold hover:bg-goldBright text-black font-black py-6 rounded-2xl">
                         EJECUTAR ANÁLISIS DUAL
                     </button>
                 </div>
             </div>
 
-            <!-- Resultados -->
+            <!-- RESULTADOS -->
             <div class="lg:col-span-7">
-                <div id="status" class="glass-card rounded-3xl p-10 min-h-[450px] text-lg leading-relaxed"></div>
+                <div id="status" class="glass-card rounded-3xl p-10 min-h-[500px]"></div>
             </div>
         </div>
     </main>
 
     <script>
-        // ==================== CLAVE API ====================
         const apiKey = "AIzaSyD2Yd-o7A_dX5vRXZ_uYtHrRT8gRD3h0z8";
         let currentBase64 = null;
 
@@ -75,33 +84,46 @@
         const scanner = document.getElementById('scanner');
         const statusDiv = document.getElementById('status');
 
-        // Subida de imagen
+        // Drag & Drop + Click
         dropZone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+        
+        fileInput.addEventListener('change', e => {
+            if (e.target.files[0]) handleFile(e.target.files[0]);
+        });
+
+        dropZone.addEventListener('dragover', e => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#D4AF37';
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.borderColor = '';
+        });
+
         dropZone.addEventListener('drop', e => {
             e.preventDefault();
+            dropZone.style.borderColor = '';
             handleFile(e.dataTransfer.files[0]);
         });
 
         function handleFile(file) {
-            if (!file) return;
+            if (!file || !file.type.startsWith('image/')) return alert("Solo imágenes");
+            
             const reader = new FileReader();
             reader.onload = e => {
                 preview.src = e.target.result;
                 preview.classList.remove('hidden');
                 dropContent.classList.add('hidden');
                 currentBase64 = e.target.result.split(',')[1];
-                statusDiv.innerHTML = `<p class="text-green-400">✓ Imagen cargada correctamente</p>`;
             };
             reader.readAsDataURL(file);
         }
 
         async function startAnalysis() {
-            if (!currentBase64) return alert("Primero sube una imagen");
+            if (!currentBase64) return alert("Sube una imagen primero");
 
-            statusDiv.innerHTML = `<p class="text-yellow-400">Analizando con Gemini...</p>`;
             scanner.style.display = 'block';
-            document.getElementById('btn-analyze').disabled = true;
+            document.getElementById('btn-analyze').innerText = "ANALIZANDO...";
 
             try {
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
@@ -110,7 +132,7 @@
                     body: JSON.stringify({
                         contents: [{
                             parts: [
-                                { text: "Analiza este dibujo creativo de forma profunda, detallada y útil. Incluye simbolismo, técnica y potencial artístico." },
+                                { text: "Analiza este dibujo de forma detallada y creativa en español." },
                                 { inlineData: { mimeType: "image/jpeg", data: currentBase64 } }
                             ]
                         }]
@@ -118,18 +140,16 @@
                 });
 
                 const data = await res.json();
-
-                if (!res.ok) throw new Error("Error de API");
-
                 const text = data.candidates[0].content.parts[0].text;
+
                 statusDiv.innerHTML = `<div class="prose prose-invert">${text.replace(/\n/g, '<br><br>')}</div>`;
 
             } catch (err) {
                 console.error(err);
-                statusDiv.innerHTML = `<p class="text-red-400">❌ Error al conectar con Gemini.<br><small>Prueba con otra imagen o espera unos minutos.</small></p>`;
+                statusDiv.innerHTML = `<p class="text-red-400">Error al analizar. Inténtalo de nuevo.</p>`;
             } finally {
                 scanner.style.display = 'none';
-                document.getElementById('btn-analyze').disabled = false;
+                document.getElementById('btn-analyze').innerText = "EJECUTAR ANÁLISIS DUAL";
             }
         }
     </script>
