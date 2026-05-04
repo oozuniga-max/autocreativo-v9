@@ -1,154 +1,85 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoCreativo V9 | Dualidad y Claridad</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        dark: '#050505',
-                        card: '#0D0D0F',
-                        gold: '#D4AF37',
-                        goldBright: '#FFD700'
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body { background-color: #050505; color: #F2F2F2; font-family: 'Outfit', sans-serif; }
-        .glass-card { background: #0D0D0F; border: 1px solid rgba(212, 175, 55, 0.15); box-shadow: 0 30px 60px -12px rgba(0,0,0,0.8); }
-        .tab-btn.active { color: #D4AF37; border-bottom: 2px solid #D4AF37; }
-        .scanning-line { position: absolute; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, #D4AF37, transparent); animation: scan 3s infinite; display: none; }
-        @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
-        .loader { border: 3px solid rgba(212,175,55,0.1); border-top-color: #D4AF37; border-radius: 50%; width: 32px; height: 32px; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-    </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>AutoCreativo V9 | Dualidad y Claridad</title>
+ 
+ <script src="https://cdn.tailwindcss.com"></script>
+ <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+ 
+ <script>
+ tailwind.config = {
+ theme: {
+ extend: {
+ colors: { dark: '#050505', gold: '#D4AF37', goldBright: '#FFD700' }
+ }
+ }
+ }
+ </script>
+ <style>
+ body { background-color: #050505; color: #F2F2F2; font-family: 'Outfit', sans-serif; }
+ .glass-card { background: #0D0D0F; border: 1px solid rgba(212, 175, 55, 0.2); }
+ .tab-btn.active { color: #D4AF37; border-bottom: 2px solid #D4AF37; }
+ .scanning-line { position: absolute; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, #D4AF37, transparent); animation: scan 3s infinite; display: none; }
+ @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
+ .loader { border: 3px solid rgba(212,175,55,0.2); border-top-color: #D4AF37; border-radius: 50%; width: 32px; height: 32px; animation: spin 1s linear infinite; }
+ </style>
 </head>
 <body class="antialiased min-h-screen">
 
-    <nav class="fixed w-full z-50 bg-[#050505]/95 backdrop-blur-xl border-b border-white/10">
-        <div class="max-w-7xl mx-auto px-8 h-24 flex items-center">
-            <div class="flex items-center gap-4">
-                <div class="w-10 h-10 border-2 border-[#D4AF37] flex items-center justify-center font-bold text-[#D4AF37] rotate-45">
-                    <span class="-rotate-45">V9</span>
-                </div>
-                <span class="font-extrabold tracking-[0.3em] text-sm uppercase">AutoCreativo <span class="text-[#D4AF37]">Dual</span></span>
-            </div>
-        </div>
-    </nav>
+ <nav class="fixed w-full z-50 bg-[#050505]/95 backdrop-blur-xl border-b border-white/10">
+ <div class="max-w-7xl mx-auto px-8 h-24 flex items-center">
+ <div class="flex items-center gap-4">
+ <div class="w-10 h-10 border-2 border-[#D4AF37] flex items-center justify-center font-bold text-[#D4AF37] rotate-45">
+ <span class="-rotate-45">V9</span>
+ </div>
+ <span class="font-extrabold tracking-[0.3em] text-sm uppercase">AutoCreativo <span class="text-[#D4AF37]">Dual</span></span>
+ </div>
+ </div>
+ </nav>
 
-    <main class="pt-44 pb-32 px-8 max-w-7xl mx-auto">
-        <header class="text-center mb-20">
-            <h1 class="text-6xl lg:text-8xl font-bold tracking-tighter">El Alma en el <span class="text-[#D4AF37] font-serif italic">Trazo</span></h1>
-        </header>
+ <main class="pt-44 pb-32 px-8 max-w-7xl mx-auto">
+ <header class="text-center mb-20">
+ <h1 class="text-6xl lg:text-8xl font-bold tracking-tighter">El Alma en el <span class="text-[#D4AF37] font-serif italic">Trazo</span></h1>
+ </header>
 
-        <div class="grid lg:grid-cols-12 gap-16">
-            <!-- Subida -->
-            <div class="lg:col-span-5">
-                <div class="glass-card rounded-3xl p-10 sticky top-28">
-                    <div id="drop-zone" class="aspect-square border-2 border-dashed border-white/30 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:border-[#D4AF37] transition-all relative">
-                        <input type="file" id="file-upload" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer z-10">
-                        <div id="drop-content" class="text-center z-0">
-                            <div class="text-5xl mb-4">✨</div>
-                            <p class="font-mono text-[#D4AF37] tracking-widest">ARRASTRA O HAZ CLIC</p>
-                            <p class="text-xs text-gray-400 mt-2">Sube tu dibujo</p>
-                        </div>
-                        <img id="image-preview" class="hidden absolute inset-0 w-full h-full object-contain p-6 rounded-3xl">
-                        <div id="scanner" class="scanning-line"></div>
-                    </div>
+ <div class="grid lg:grid-cols-12 gap-16">
+ <!-- Subida de imagen -->
+ <div class="lg:col-span-5">
+ <div class="glass-card rounded-3xl p-10 sticky top-28">
+ <div id="drop-zone" class=" aspect-square border-2 border-dashed border-white/30 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:border-[#D4AF37] transition-all relative overflow-hidden">
+ <input type="file" id="file-upload" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer z-10">
+ <div id="drop-content" class="text-center">
+ <div class="text-5xl mb-4">✨</div>
+ <p class="font-mono text-[#D4AF37]">ARRASTRA O HAZ CLIC</p>
+ </div>
+ <img id="image-preview" class="hidden absolute inset-0 w-full h-full object-contain p-4">
+ <div id="scanner" class="scanning-line"></div>
+ </div>
 
-                    <button onclick="startAnalysis()" id="btn-analyze" class="w-full mt-8 bg-[#D4AF37] hover:bg-[#FFD700] text-black font-black py-6 rounded-2xl text-sm tracking-widest transition-all">
-                        EJECUTAR ANÁLISIS DUAL
-                    </button>
-                </div>
-            </div>
+ <button onclick="startAnalysis()" id="btn-analyze" 
+ class="w-full mt-8 bg-[#D4AF37] hover:bg-[#FFD700] text-black font-black py-6 rounded-2xl text-sm tracking-widest">
+ EJECUTAR ANÁLISIS DUAL
+ </button>
+ </div>
+ </div>
 
-            <!-- Resultados -->
-            <div class="lg:col-span-7" id="diagnostico">
-                <div id="results-empty" class="text-center py-20">
-                    <p class="text-6xl mb-6">👁️</p>
-                    <p class="uppercase text-sm tracking-widest text-gray-400">Sube una imagen para comenzar el análisis</p>
-                </div>
+ <!-- Resultados -->
+ <div class="lg:col-span-7">
+ <div id="results-empty" class="text-center py-32">
+ <p class="text-6xl mb-6">👁️</p>
+ <p class="text-gray-400">Sube tu dibujo y pulsa analizar</p>
+ </div>
 
-                <div id="results-dashboard" class="hidden">
-                    <!-- Aquí van los resultados (se llenan con JS) -->
-                    <p class="text-center text-gray-400">Análisis completado. Revisa las secciones.</p>
-                </div>
-            </div>
-        </div>
-    </main>
+ <div id="results-dashboard" class="hidden">
+ <p class="text-center text-green-400">✅ Análisis completado</p>
+ <div id="result-text" class="mt-8 text-lg leading-relaxed"></div>
+ </div>
+ </div>
+ </div>
+ </main>
 
-    <script>
-        const apiKey = "AIzaSyD5BBfs8D6EWUtNC2Tx0rrlIGB5JhoDzyw";
-        let currentBase64 = null;
-
-        // Elementos
-        const dropZone = document.getElementById('drop-zone');
-        const fileInput = document.getElementById('file-upload');
-        const preview = document.getElementById('image-preview');
-        const dropContent = document.getElementById('drop-content');
-        const scanner = document.getElementById('scanner');
-
-        // Drag & Drop mejorado
-        dropZone.addEventListener('click', () => fileInput.click());
-
-        fileInput.addEventListener('change', (e) => {
-            handleFile(e.target.files[0]);
-        });
-
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.style.borderColor = '#D4AF37';
-        });
-
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.style.borderColor = '';
-        });
-
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.style.borderColor = '';
-            handleFile(e.dataTransfer.files[0]);
-        });
-
-        function handleFile(file) {
-            if (!file || !file.type.startsWith('image/')) {
-                alert("Por favor sube una imagen");
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                preview.src = e.target.result;
-                preview.classList.remove('hidden');
-                dropContent.classList.add('hidden');
-                currentBase64 = e.target.result.split(',')[1];
-            };
-            reader.readAsDataURL(file);
-        }
-
-        async function startAnalysis() {
-            if (!currentBase64) {
-                alert("Primero sube una imagen");
-                return;
-            }
-
-            scanner.style.display = 'block';
-            document.getElementById('btn-analyze').innerText = "ANALIZANDO...";
-
-            // Aquí iría tu prompt y fetch (puedes ampliarlo después)
-            alert("Análisis iniciado. Esta versión básica ya permite subir imágenes correctamente.");
-            scanner.style.display = 'none';
-            document.getElementById('btn-analyze').innerText = "EJECUTAR ANÁLISIS DUAL";
-        }
-    </script>
-</body>
-</html>
+ <script>
+ const apiKey = "AIzaSyD5BBfs8D6EWUtNC2Tx0rrlIGB5JhoDzyw";
+ let currentBase64 
