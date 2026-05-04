@@ -81,7 +81,6 @@
                         <div id="btn-loader" class="loader hidden"></div>
                     </button>
 
-                    <!-- Mentor -->
                     <div id="mentor-section" class="mt-12 pt-10 border-t border-white/10 hidden">
                         <h3 class="font-mono text-gold text-xs tracking-widest mb-4">MENTOR CREATIVO</h3>
                         <div id="chat-history" class="space-y-4 max-h-80 overflow-y-auto text-sm mb-4"></div>
@@ -101,7 +100,6 @@
                 </div>
 
                 <div id="results-dashboard" class="hidden space-y-28">
-                    <!-- Bloque 1 -->
                     <section>
                         <h2 class="text-5xl font-bold mb-8 flex items-center gap-4"><span class="text-gold font-serif">01</span> Dinámica del Gesto</h2>
                         <div class="glass-card rounded-3xl overflow-hidden">
@@ -116,7 +114,6 @@
                         </div>
                     </section>
 
-                    <!-- Bloque 2 -->
                     <section>
                         <h2 class="text-5xl font-bold mb-8 flex items-center gap-4"><span class="text-gold font-serif">02</span> Arquitectura de Símbolos</h2>
                         <div class="glass-card rounded-3xl overflow-hidden">
@@ -134,7 +131,6 @@
                         </div>
                     </section>
 
-                    <!-- Bloque 3 -->
                     <section id="sintesis">
                         <h2 class="text-5xl font-bold mb-8 flex items-center gap-4"><span class="text-gold font-serif">03</span> Potencial Soñado</h2>
                         <div class="glass-card rounded-3xl p-12 text-center">
@@ -170,7 +166,6 @@
             btnDownload: document.getElementById('btn-download')
         };
 
-        // Drag & Drop
         function processFile(file) {
             if (!file) return;
             const reader = new FileReader();
@@ -222,7 +217,6 @@ Responde SOLO con JSON válido:
                 renderResults();
             } catch (err) {
                 alert("Error al analizar. Inténtalo de nuevo.");
-                console.error(err);
             } finally {
                 document.getElementById('btn-text').innerText = "EJECUTAR ANÁLISIS DUAL";
                 document.getElementById('btn-analyze').disabled = false;
@@ -239,73 +233,4 @@ Responde SOLO con JSON válido:
             document.getElementById('res-gesto-clinico').innerText = analysisData.gesto?.clinico || "";
             document.getElementById('res-simbolo-simple').innerText = analysisData.simbolo?.simple || "";
             document.getElementById('res-simbolo-clinico').innerText = analysisData.simbolo?.clinico || "";
-            document.getElementById('res-consejo').innerText = analysisData.consejo || "";
-
-            const tagsDiv = document.getElementById('res-tags');
-            tagsDiv.innerHTML = '';
-            (analysisData.tags || []).forEach(tag => {
-                const el = document.createElement('span');
-                el.className = "px-4 py-1.5 bg-gold/10 border border-gold/30 text-gold text-xs rounded-full";
-                el.textContent = tag;
-                tagsDiv.appendChild(el);
-            });
-        }
-
-        async function askAnalyst() {
-            const input = document.getElementById('chat-input');
-            if (!input.value || !currentBase64) return;
-
-            const history = document.getElementById('chat-history');
-            history.innerHTML += `<div class="text-right"><div class="inline-block bg-gold/10 px-4 py-3 rounded-2xl">${input.value}</div></div>`;
-            const question = input.value;
-            input.value = '';
-
-            try {
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                    method: "POST",
-                    headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: "Responde como mentor creativo sabio y directo:" + question }, { inlineData: { mimeType: "image/jpeg", data: currentBase64 }}]}]
-                    })
-                });
-                const data = await res.json();
-                const reply = data.candidates[0].content.parts[0].text;
-                history.innerHTML += `<div class="text-left"><div class="inline-block bg-white/5 px-4 py-3 rounded-2xl">${reply}</div></div>`;
-                history.scrollTop = history.scrollHeight;
-            } catch (e) { console.error(e); }
-        }
-
-        async function generateVision() {
-            if (!currentBase64) return;
-            ui.visionLoader.classList.remove('hidden');
-            ui.visionImg.classList.add('hidden');
-
-            try {
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${apiKey}`, {
-                    method: "POST",
-                    headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: "Convierte este boceto en una hermosa obra de arte digital de galería, estilo oil painting con luz dorada, colores vibrantes y elegantes." }, { inlineData: { mimeType: "image/jpeg", data: currentBase64 }}]}]
-                    })
-                });
-                const data = await res.json();
-                const b64 = data.candidates[0].content.parts.find(p => p.inlineData).inlineData.data;
-                ui.visionImg.src = `data:image/png;base64,${b64}`;
-                ui.visionImg.classList.remove('hidden');
-                ui.btnDownload.classList.remove('hidden');
-            } catch (e) {
-                alert("Error generando la imagen");
-            } finally {
-                ui.visionLoader.classList.add('hidden');
-            }
-        }
-
-        function downloadImage() {
-            const link = document.createElement('a');
-            link.href = ui.visionImg.src;
-            link.download = 'AutoCreativo-V9-Masterpiece.png';
-            link.click();
-        }
-    </script>
-</body>
-</html>
+            document.getElementById('res-consejo').innerText =
