@@ -3,107 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoCreativo V9 | Ultimate Edition</title>
+    <title>AutoCreativo V9 | Atelier de Autor</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&family=Playfair+Display:ital,wght@1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,700;1,400&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
         body { background: #050505; color: #F2F2F2; font-family: 'Outfit', sans-serif; overflow-x: hidden; }
-        .glass { background: rgba(13, 13, 15, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(212, 175, 55, 0.15); }
-        .gold-glow { text-shadow: 0 0 15px rgba(212, 175, 55, 0.5); color: #D4AF37; }
-        .btn-gold { background: #D4AF37; color: black; transition: all 0.3s ease; }
-        .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3); }
-        .tab-active { border-bottom: 2px solid #D4AF37; color: #D4AF37; }
-        .scan-line { position: absolute; width: 100%; height: 2px; background: #D4AF37; top: 0; animation: scan 3s infinite linear; display: none; }
-        @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
+        .glass { background: rgba(13, 13, 15, 0.85); backdrop-filter: blur(25px); border: 1px solid rgba(212, 175, 55, 0.15); }
+        .gold-glow { text-shadow: 0 0 15px rgba(212, 175, 55, 0.4); color: #D4AF37; }
+        .tab-btn { transition: all 0.3s; opacity: 0.4; border-bottom: 2px solid transparent; }
+        .tab-btn.active { opacity: 1; color: #D4AF37; border-bottom: 2px solid #D4AF37; }
+        .scan-line { position: absolute; width: 100%; height: 3px; background: #D4AF37; top: 0; animation: scan 3s infinite ease-in-out; display: none; z-index: 50; }
+        @keyframes scan { 0% { top: 0%; opacity: 0; } 50% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+        .loader { border: 2px solid rgba(212, 175, 55, 0.1); border-top: 2px solid #D4AF37; border-radius: 50%; width: 18px; height: 18px; animation: spin 0.8s linear infinite; display: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="min-h-screen">
 
     <nav class="fixed w-full z-50 bg-black/90 border-b border-white/10 h-20 flex items-center px-8 justify-between">
         <div class="flex items-center gap-4">
-            <div class="w-10 h-10 border border-gold-glow flex items-center justify-center font-bold text-gold rotate-45"><span class="-rotate-45 text-[10px] gold-glow">V9</span></div>
-            <div>
-                <h1 class="font-extrabold tracking-[0.3em] text-[11px] uppercase leading-none">AutoCreativo</h1>
-                <span class="text-[9px] text-gray-500 uppercase tracking-widest">Digital Craftsman Studio</span>
-            </div>
+            <div class="w-9 h-9 border border-gold flex items-center justify-center font-bold text-gold rotate-45"><span class="-rotate-45 text-[9px] gold-glow uppercase">V9</span></div>
+            <span class="font-extrabold tracking-[0.3em] text-[10px] uppercase">AutoCreativo <span class="gold-glow italic serif">Dual Pro</span></span>
         </div>
-        <div class="flex gap-8 text-[10px] uppercase font-bold tracking-widest">
-            <button onclick="switchTab('analisis')" id="tab-analisis" class="tab-active py-2">Análisis</button>
-            <button onclick="switchTab('mentor')" id="tab-mentor" class="py-2 text-gray-500">Mentor</button>
-            <button onclick="switchTab('creacion')" id="tab-creacion" class="py-2 text-gray-500">Creación</button>
+        <div class="flex gap-10 text-[9px] uppercase font-black tracking-widest">
+            <button onclick="nav('analisis')" id="nav-analisis" class="tab-btn active">Análisis</button>
+            <button onclick="nav('mentor')" id="nav-mentor" class="tab-btn">Mentoría</button>
+            <button onclick="nav('vision')" id="nav-vision" class="tab-btn">Obra Soñada</button>
         </div>
-        <button onclick="config()" class="text-[9px] border border-gold/40 px-4 py-2 rounded-full gold-glow hover:bg-gold hover:text-black transition-all">🔑 API ENGINE</button>
+        <button onclick="config()" class="text-[9px] border border-gold/30 px-5 py-2 rounded-full gold-glow hover:bg-gold hover:text-black transition-all">🔑 ENGINE</button>
     </nav>
 
     <main class="pt-32 px-6 max-w-7xl mx-auto">
         
-        <div id="sec-analisis" class="grid lg:grid-cols-2 gap-12">
+        <div id="sec-analisis" class="grid lg:grid-cols-2 gap-12 transition-all duration-500">
             <div class="glass p-8 rounded-[2.5rem]">
-                <div onclick="document.getElementById('file').click()" class="relative aspect-square border-2 border-dashed border-white/10 rounded-3xl flex items-center justify-center cursor-pointer hover:bg-white/5 transition-all overflow-hidden">
+                <div onclick="document.getElementById('file').click()" class="relative aspect-square border-2 border-dashed border-white/10 rounded-3xl flex items-center justify-center cursor-pointer hover:bg-white/5 overflow-hidden group">
                     <input type="file" id="file" class="hidden" accept="image/*">
-                    <div id="idle" class="text-center">
-                        <p class="text-4xl mb-2 opacity-50">✦</p>
-                        <p class="text-[9px] uppercase gold-glow tracking-[0.4em]">Inyectar Trazado / Obra</p>
+                    <div id="idle" class="text-center group-hover:scale-110 transition-all">
+                        <p class="text-4xl mb-4 opacity-30">✦</p>
+                        <p class="text-[9px] uppercase gold-glow tracking-[0.4em]">Capturar Trazo</p>
                     </div>
                     <img id="view" class="absolute inset-0 w-full h-full object-contain hidden p-6 z-10">
-                    <div id="line" class="scan-line z-20"></div>
+                    <div id="line" class="scan-line"></div>
                 </div>
-                <button onclick="ejecutar('analisis')" class="btn-gold w-full mt-8 py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.3em]">Ejecutar Diagnóstico Dual</button>
+                <button onclick="analizar()" class="w-full mt-8 bg-[#D4AF37] text-black py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.3em] flex items-center justify-center gap-3 active:scale-95 transition-all">
+                    <span>Sincronizar Análisis</span>
+                    <div id="load-analisis" class="loader"></div>
+                </button>
             </div>
-            <div id="res-analisis" class="space-y-6 opacity-20 transition-all duration-1000">
-                <div class="glass p-10 rounded-[2.5rem] border-l-4 border-gold/50">
-                    <p class="text-[10px] gold-glow font-bold uppercase tracking-widest mb-6 italic">✦ Crítica Poética</p>
-                    <p id="out-p" class="text-2xl font-serif italic leading-relaxed"></p>
+            <div id="results-analisis" class="space-y-8 opacity-20">
+                <div class="glass p-10 rounded-[2.5rem] border-l-4 border-gold">
+                    <h3 class="text-[9px] gold-glow font-bold uppercase tracking-[0.3em] mb-6 italic">Simbolismo y Metafísica</h3>
+                    <p id="out-simbolico" class="text-2xl font-serif italic leading-relaxed"></p>
                 </div>
                 <div class="glass p-10 rounded-[2.5rem]">
-                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-6">✦ Matriz Técnica</p>
-                    <p id="out-t" class="text-sm text-gray-400 leading-relaxed"></p>
+                    <h3 class="text-[9px] text-gray-500 font-bold uppercase tracking-[0.3em] mb-6">Diagnóstico Clínico (Técnico)</h3>
+                    <p id="out-clinico" class="text-sm text-gray-400 leading-relaxed font-sans"></p>
                 </div>
             </div>
         </div>
 
-        <div id="sec-mentor" class="hidden max-w-3xl mx-auto text-center space-y-12 py-10">
-            <div class="glass p-12 rounded-[3rem] border-t-4 border-gold">
-                <h2 class="text-3xl font-serif italic mb-6 gold-glow">Consejo del Maestro</h2>
-                <div id="res-mentor" class="text-xl text-gray-300 leading-relaxed min-h-[150px]">
-                    "La máquina es rápida... pero la madera tiene alma. Sube una obra para recibir guía."
-                </div>
-                <button onclick="ejecutar('mentor')" class="btn-gold px-12 py-4 mt-10 rounded-full font-bold uppercase text-[10px] tracking-widest">Consultar al Mentor</button>
+        <div id="sec-mentor" class="hidden max-w-3xl mx-auto space-y-8">
+            <div id="chat-box" class="glass h-[400px] rounded-[2.5rem] p-10 overflow-y-auto space-y-6 font-light text-gray-300">
+                <div class="italic border-l-2 border-gold pl-6 py-2 text-gold opacity-80">"El maestro aguarda tu consulta. Sube una obra y hablemos sobre el alma de tu diseño."</div>
+            </div>
+            <div class="flex gap-4">
+                <input type="text" id="chat-input" class="flex-grow bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-gold text-sm" placeholder="Pregúntale al Mentor sobre tu obra...">
+                <button onclick="chatMentor()" class="bg-[#D4AF37] text-black px-8 rounded-2xl font-bold uppercase text-[9px] tracking-widest active:scale-95 transition-all flex items-center gap-2">
+                    Enviar <div id="load-mentor" class="loader !border-black/20 !border-top-black"></div>
+                </button>
             </div>
         </div>
 
-        <div id="sec-creacion" class="hidden grid lg:grid-cols-2 gap-12">
-            <div class="glass p-10 rounded-[2.5rem] space-y-8">
-                <h2 class="text-2xl font-serif italic gold-glow">Arquitecto de Visiones</h2>
-                <p class="text-sm text-gray-400">Describe una idea básica y el motor creará una "Obra de Autor" conceptual basada en tu estilo de diseño digital y maderas nativas.</p>
-                <textarea id="idea-input" class="w-full bg-black/50 border border-white/10 rounded-2xl p-6 text-sm focus:border-gold outline-none h-40" placeholder="Ej: Un amplificador que parezca una raíz brotando del suelo..."></textarea>
-                <button onclick="ejecutar('creacion')" class="btn-gold w-full py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.3em]">Materializar Prompt</button>
+        <div id="sec-vision" class="hidden grid lg:grid-cols-2 gap-12 items-center">
+            <div class="space-y-8">
+                <h2 class="text-4xl font-serif italic gold-glow leading-tight">Alquimia Visual: <br>La Obra Evolucionada</h2>
+                <p class="text-gray-400 text-sm leading-relaxed">Este motor utiliza tu trazado original como estructura base para generar una versión profesional, re-imaginando materiales, iluminación y texturas de maderas nativas.</p>
+                <button onclick="generarObra()" class="bg-white/5 border border-gold/50 text-gold px-12 py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.3em] hover:bg-gold hover:text-black transition-all flex items-center gap-4">
+                    Materializar Obra Soñada <div id="load-vision" class="loader"></div>
+                </button>
             </div>
-            <div class="glass p-10 rounded-[2.5rem] flex flex-col justify-center border-dashed border-2 border-gold/20">
-                <p class="text-[10px] gold-glow font-bold uppercase tracking-widest mb-4">Prompt de Autor Generado:</p>
-                <div id="res-creacion" class="text-lg text-gray-300 italic leading-relaxed"></div>
+            <div class="glass aspect-square rounded-[3rem] overflow-hidden flex items-center justify-center relative border-dashed border-2 border-gold/20">
+                <img id="img-vision" class="hidden w-full h-full object-cover">
+                <div id="vision-placeholder" class="text-[9px] uppercase tracking-[0.5em] text-gray-600 font-bold">Cámara de Alquimia Digital</div>
             </div>
         </div>
 
     </main>
 
     <script>
-        let imgBase64 = null;
+        let imgB64 = null;
+        let activeModel = null;
 
         function config() {
-            const k = prompt("API KEY:");
+            const k = prompt("Introduce tu API KEY:");
             if(k) localStorage.setItem('v9_key', k.trim());
         }
 
-        function switchTab(tab) {
-            ['analisis', 'mentor', 'creacion'].forEach(t => {
-                document.getElementById(`sec-${t}`).classList.add('hidden');
-                document.getElementById(`tab-${t}`).classList.remove('tab-active', 'text-gold');
+        function nav(sec) {
+            ['analisis', 'mentor', 'vision'].forEach(s => {
+                document.getElementById(`sec-${s}`).classList.add('hidden');
+                document.getElementById(`nav-${s}`).classList.remove('active');
             });
-            document.getElementById(`sec-${tab}`).classList.remove('hidden');
-            document.getElementById(`tab-${tab}`).classList.add('tab-active');
-            if(tab === 'analisis') document.getElementById(`sec-${tab}`).classList.add('grid');
-            if(tab === 'creacion') document.getElementById(`sec-${tab}`).classList.add('grid');
+            document.getElementById(`sec-${sec}`).classList.remove('hidden');
+            document.getElementById(`nav-${sec}`).classList.add('active');
+            if(sec === 'analisis' || sec === 'vision') document.getElementById(`sec-${sec}`).classList.add('grid');
         }
 
         document.getElementById('file').onchange = e => {
@@ -112,62 +116,105 @@
                 document.getElementById('view').src = ev.target.result;
                 document.getElementById('view').classList.remove('hidden');
                 document.getElementById('idle').classList.add('hidden');
-                imgBase64 = ev.target.result.split(',')[1];
+                imgB64 = ev.target.result.split(',')[1];
             };
             r.readAsDataURL(e.target.files[0]);
         };
 
-        async function ejecutar(modo) {
+        async function getModel() {
+            if(activeModel) return activeModel;
             const k = localStorage.getItem('v9_key');
-            if(!k) return alert("Configura la API KEY");
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${k}`);
+            const data = await res.json();
+            activeModel = data.models.find(m => m.name.includes("flash") && m.supportedGenerationMethods.includes("generateContent"))?.name;
+            return activeModel;
+        }
+
+        async function analizar() {
+            const k = localStorage.getItem('v9_key');
+            if(!k || !imgB64) return alert("Falta API Key o Imagen");
             
             document.getElementById('line').style.display = 'block';
-            let prompt = "";
+            document.getElementById('load-analisis').style.display = 'block';
             
-            if(modo === 'analisis') {
-                if(!imgBase64) return alert("Sube una imagen");
-                prompt = "Analiza esta obra. Responde SOLO JSON: {\"p\":\"crítica poética profunda\",\"t\":\"análisis técnico de composición y posibles rutas CNC\"}";
-            } else if(modo === 'mentor') {
-                prompt = "Actúa como un sabio maestro de carpintería digital. Dame un consejo místico y técnico sobre el equilibrio entre la máquina y el alma de la madera nativa. Máximo 3 líneas.";
-            } else {
-                const idea = document.getElementById('idea-input').value;
-                prompt = `Convierte esta idea: "${idea}" en un Prompt detallado para generación de imágenes artísticas. El estilo debe ser 'Industrial-Orgánico Pro', con maderas nativas como Lenga o Roble y luces ámbar. Responde solo el prompt en inglés.`;
+            try {
+                const model = await getModel();
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${k}`, {
+                    method: 'POST',
+                    body: JSON.stringify({ contents: [{ parts: [
+                        { text: "Analiza esta imagen de autor. Responde solo JSON: {\"s\":\"analisis simbolico profundo y emocional\", \"c\":\"analisis clínico técnico del trazo y la composición\"}" },
+                        { inlineData: { mimeType: "image/jpeg", data: imgB64 } }
+                    ]}] })
+                });
+                const data = await res.json();
+                const clean = data.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim();
+                const json = JSON.parse(clean);
+                
+                document.getElementById('out-simbolico').innerText = json.s;
+                document.getElementById('out-clinico').innerText = json.c;
+                document.getElementById('results-analisis').style.opacity = "1";
+            } catch (e) { alert("Error: " + e.message); }
+            finally {
+                document.getElementById('line').style.display = 'none';
+                document.getElementById('load-analisis').style.display = 'none';
             }
+        }
+
+        async function chatMentor() {
+            const k = localStorage.getItem('v9_key');
+            const input = document.getElementById('chat-input');
+            const box = document.getElementById('chat-box');
+            if(!input.value || !k) return;
+
+            document.getElementById('load-mentor').style.display = 'block';
+            const userMsg = input.value;
+            box.innerHTML += `<div class="text-white text-right font-bold">[Tú]: ${userMsg}</div>`;
+            input.value = "";
 
             try {
-                // Sistema de Autodetección de Modelo (Para evitar el Error de Conexión)
-                const list = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${k}`);
-                const dataModels = await list.json();
-                const model = dataModels.models.find(m => m.name.includes("flash") && m.supportedGenerationMethods.includes("generateContent"))?.name;
-
-                const payload = { contents: [{ parts: [{ text: prompt }] }] };
-                if(imgBase64 && modo !== 'creacion') {
-                    payload.contents[0].parts.push({ inlineData: { mimeType: "image/jpeg", data: imgBase64 } });
-                }
+                const model = await getModel();
+                const payload = { contents: [{ parts: [{ text: `Actúa como un sabio maestro de carpintería y diseño digital. Responde de forma mística pero técnica a: ${userMsg}` }] }] };
+                if(imgB64) payload.contents[0].parts.push({ inlineData: { mimeType: "image/jpeg", data: imgB64 } });
 
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${k}`, {
                     method: 'POST',
                     body: JSON.stringify(payload)
                 });
-
                 const data = await res.json();
-                const text = data.candidates[0].content.parts[0].text;
+                const mentorRes = data.candidates[0].content.parts[0].text;
+                box.innerHTML += `<div class="text-gold italic border-l-2 border-gold pl-6 py-2">[Maestro]: ${mentorRes}</div>`;
+                box.scrollTop = box.scrollHeight;
+            } catch (e) { alert("Error de conexión"); }
+            finally { document.getElementById('load-mentor').style.display = 'none'; }
+        }
 
-                if(modo === 'analisis') {
-                    const json = JSON.parse(text.replace(/```json|```/g, ""));
-                    document.getElementById('out-p').innerText = json.p;
-                    document.getElementById('out-t').innerText = json.t;
-                    document.getElementById('res-analisis').style.opacity = "1";
-                } else if(modo === 'mentor') {
-                    document.getElementById('res-mentor').innerText = text;
-                } else {
-                    document.getElementById('res-creacion').innerText = text;
-                }
-            } catch (e) {
-                alert("Error de Motor: " + e.message);
-            } finally {
-                document.getElementById('line').style.display = 'none';
-            }
+        async function generarObra() {
+            const k = localStorage.getItem('v9_key');
+            if(!imgB64 || !k) return alert("Sube una imagen primero");
+
+            document.getElementById('load-vision').style.display = 'block';
+            document.getElementById('vision-placeholder').innerText = "PROCESANDO ALQUIMIA...";
+
+            try {
+                const model = await getModel();
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${k}`, {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        contents: [{ parts: [
+                            { text: "Generate a realistic, professional, high-end digital render based on this sketch. Cinematic lighting, native Chilean woods, dark atmosphere, ultra-detailed." },
+                            { inlineData: { mimeType: "image/jpeg", data: imgB64 } }
+                        ]}],
+                        generationConfig: { responseModalities: ["IMAGE"] }
+                    })
+                });
+                const data = await res.json();
+                const imgData = data.candidates[0].content.parts[0].inlineData.data;
+                const vImg = document.getElementById('img-vision');
+                vImg.src = `data:image/png;base64,${imgData}`;
+                vImg.classList.remove('hidden');
+                document.getElementById('vision-placeholder').classList.add('hidden');
+            } catch (e) { alert("Error al generar imagen. Asegúrate que tu modelo soporte generación de imágenes."); }
+            finally { document.getElementById('load-vision').style.display = 'none'; }
         }
     </script>
 </body>
