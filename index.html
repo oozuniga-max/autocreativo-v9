@@ -194,19 +194,36 @@
 
             document.getElementById('load-vision').style.display = 'block';
             document.getElementById('vision-placeholder').innerText = "PROCESANDO ALQUIMIA...";
+            const vImg = document.getElementById('img-vision');
+            const vPlaceholder = document.getElementById('vision-placeholder');
 
             try {
                 const model = await getModel();
+                // Solicitamos una re-imaginación técnica profunda
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${k}`, {
                     method: 'POST',
                     body: JSON.stringify({ 
                         contents: [{ parts: [
-                            { text: "Generate a realistic, professional, high-end digital render based on this sketch. Cinematic lighting, native Chilean woods, dark atmosphere, ultra-detailed." },
+                            { text: "Actúa como un motor de renderizado artístico. Toma este boceto y descríbelo como una obra terminada de ultra-lujo. Usa materiales como madera de Lenga pulida, resina epóxica ámbar y acero cepillado. Describe la iluminación cinematográfica y el entorno de un taller de autor. Responde con un párrafo poético y visualmente descriptivo que sirva como 'Visión de la Obra Terminada'." },
                             { inlineData: { mimeType: "image/jpeg", data: imgB64 } }
-                        ]}],
-                        generationConfig: { responseModalities: ["IMAGE"] }
+                        ]}]
                     })
                 });
+                
+                const data = await res.json();
+                const visionText = data.candidates[0].content.parts[0].text;
+                
+                // Presentamos la "Visión" como texto alquímico sobre el área de imagen
+                vPlaceholder.innerText = visionText;
+                vPlaceholder.classList.remove('text-[9px]', 'text-gray-600');
+                vPlaceholder.classList.add('text-sm', 'text-gold', 'italic', 'p-8', 'leading-relaxed', 'font-serif');
+                
+            } catch (e) { 
+                alert("Error en la Alquimia: " + e.message); 
+            } finally { 
+                document.getElementById('load-vision').style.display = 'none'; 
+            }
+        };
                 const data = await res.json();
                 const imgData = data.candidates[0].content.parts[0].inlineData.data;
                 const vImg = document.getElementById('img-vision');
