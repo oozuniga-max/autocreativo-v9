@@ -3,315 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoCreativo V10 | Conexión Blindada</title>
-    
+    <title>AutoCreativo V9 | Atelier de Autor</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@1,400;1,700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        dark: '#050505',
-                        card: '#0D0D0F',
-                        gold: '#D4AF37',
-                        goldBright: '#FFD700',
-                        accent: '#F2F2F2',
-                        muted: '#A0A0A5'
-                    },
-                    fontFamily: {
-                        sans: ['Outfit', 'sans-serif'],
-                        serif: ['Playfair Display', 'serif'],
-                        mono: ['JetBrains Mono', 'monospace']
-                    }
+                    colors: { dark: '#050505', gold: '#D4AF37', muted: '#A0A0A5' },
+                    fontFamily: { sans: ['Outfit', 'sans-serif'], serif: ['Playfair Display', 'serif'], mono: ['JetBrains Mono', 'monospace'] }
                 }
             }
         }
     </script>
     <style>
-        body { background-color: #050505; color: #F2F2F2; font-family: 'Outfit', sans-serif; }
-        .glass-card { background: rgba(13, 13, 15, 0.9); border: 1px solid rgba(212, 175, 55, 0.15); backdrop-filter: blur(20px); }
-        .loader { border: 2px solid rgba(212, 175, 55, 0.1); border-top: 2px solid #D4AF37; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .scanning-line { position: absolute; width: 100%; height: 2px; background: #D4AF37; top: 0; animation: scan 2.5s infinite linear; display: none; z-index: 30; box-shadow: 0 0 15px #D4AF37; }
+        body { background-color: #050505; color: #F2F2F2; scroll-behavior: smooth; }
+        .glass-card { background: rgba(13, 13, 15, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(212, 175, 55, 0.15); box-shadow: 0 30px 60px -12px rgba(0,0,0,0.8); }
+        .scanning-line { position: absolute; width: 100%; height: 4px; background: linear-gradient(90deg, transparent, #D4AF37, transparent); top: 0; animation: scan 3s infinite linear; display: none; z-index: 50; }
         @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
-        .active-tab { color: #D4AF37; border-bottom: 2px solid #D4AF37; }
+        .text-reading-meta { font-style: italic; border-left: 3px solid #D4AF37; padding-left: 1.5rem; color: #E5E5E7; }
     </style>
 </head>
 <body class="antialiased min-h-screen">
 
-    <!-- CONFIGURATION MODAL -->
-    <div id="api-modal" class="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-6 hidden">
-        <div class="glass-card p-10 rounded-[2.5rem] max-w-md w-full border-gold/30">
-            <h3 class="text-gold font-serif italic text-2xl mb-6 text-center">Enlace de Inteligencia</h3>
-            <div class="space-y-4">
-                <div>
-                    <label class="text-[10px] text-muted uppercase tracking-widest mb-2 block ml-2">API Key de Google Gemini</label>
-                    <input type="password" id="api-key-input" placeholder="Pega tu clave AIza..." 
-                        class="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-sm font-mono text-gold focus:border-gold/50 outline-none transition-all">
+    <nav class="fixed w-full z-50 bg-dark/95 backdrop-blur-xl border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-8 h-24 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 border-2 border-gold flex items-center justify-center font-bold text-gold rotate-45">
+                    <span class="-rotate-45 font-sans">V9</span>
                 </div>
-                <button onclick="saveApiKey()" class="w-full bg-gold text-dark font-bold py-4 rounded-xl text-[11px] uppercase tracking-widest hover:bg-goldBright shadow-lg shadow-gold/10 transition-all">
-                    Establecer Conexión
-                </button>
-                <p class="text-[9px] text-muted text-center leading-relaxed">Obtén tu clave gratuita en <a href="https://aistudio.google.com/" target="_blank" class="text-gold underline">Google AI Studio</a>.</p>
+                <span class="font-extrabold tracking-[0.4em] text-xs uppercase">AutoCreativo <span class="text-gold italic serif">Pro</span></span>
             </div>
-        </div>
-    </div>
-
-    <!-- NAVIGATION -->
-    <nav class="p-6 flex justify-between items-center border-b border-white/5 bg-dark/50 backdrop-blur-md sticky top-0 z-40">
-        <div class="flex items-center gap-4">
-            <div class="w-10 h-10 rounded-xl bg-gold/10 border border-gold/30 flex items-center justify-center text-gold font-bold shadow-inner">A</div>
-            <div class="font-bold tracking-[0.2em] text-sm text-gold hidden sm:block">AUTOCREATIVO V10</div>
-        </div>
-        <div class="flex items-center gap-4">
-            <div id="status-tag" class="text-[9px] font-mono tracking-widest px-4 py-1.5 rounded-full border"></div>
-            <button onclick="toggleApiModal(true)" class="p-2 text-muted hover:text-gold transition-all">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-            </button>
+            <div class="hidden lg:flex gap-12 font-mono text-[10px] tracking-[0.5em] text-muted uppercase">
+                <span>Diagnóstico</span>
+                <span>Mentoría</span>
+            </div>
         </div>
     </nav>
 
-    <main class="max-w-6xl mx-auto mt-12 px-6 pb-20">
-        <div class="grid lg:grid-cols-2 gap-12">
-            
-            <!-- INPUT SECTION -->
-            <div class="space-y-8">
-                <div class="glass-card p-8 sm:p-10 rounded-[3rem]">
-                    <h2 class="font-serif italic text-3xl mb-8">Captura Visual</h2>
-                    
-                    <div class="relative aspect-video rounded-[2rem] border-2 border-dashed border-white/10 flex flex-col items-center justify-center bg-white/[0.02] overflow-hidden hover:border-gold/30 transition-all group">
-                        <input type="file" id="image-input" class="absolute inset-0 opacity-0 cursor-pointer z-20" accept="image/*">
-                        <div id="drop-text" class="text-center group-hover:scale-110 transition-transform">
-                            <span class="text-4xl block mb-4">🖼️</span>
-                            <p class="text-[10px] font-mono text-muted uppercase tracking-widest">Haz clic o arrastra</p>
+    <main class="pt-44 pb-32 px-8 max-w-7xl mx-auto">
+        <header class="mb-24 text-center">
+            <h1 class="text-6xl lg:text-8xl font-bold tracking-tighter mb-8 leading-none">
+                El Alma en el <span class="text-gold font-serif italic">Trazo.</span>
+            </h1>
+            <p class="text-muted text-xl max-w-3xl mx-auto font-light leading-relaxed">
+                Interpretación dual: la precisión técnica del artesano unida a la profundidad del símbolo metafísico.
+            </p>
+        </header>
+
+        <div class="grid lg:grid-cols-12 gap-16">
+            <div class="lg:col-span-5">
+                <div class="glass-card rounded-[2.5rem] p-10 sticky top-36">
+                    <div id="drop-zone" onclick="document.getElementById('file-upload').click()" class="w-full aspect-square rounded-3xl border-2 border-dashed border-white/5 bg-white/[0.02] flex flex-col items-center justify-center cursor-pointer relative overflow-hidden transition-all group hover:border-gold/40">
+                        <input type="file" id="file-upload" accept="image/*" class="hidden">
+                        <div id="drop-content" class="text-center group-hover:scale-105 transition-all">
+                            <div class="text-5xl mb-6">✨</div>
+                            <p class="font-mono text-[10px] tracking-widest uppercase text-gold">Inyectar Obra</p>
                         </div>
-                        <img id="img-preview" class="hidden absolute inset-0 w-full h-full object-contain p-6 z-10 bg-dark">
-                        <div id="scan-line" class="scanning-line"></div>
+                        <img id="preview" class="absolute inset-0 w-full h-full object-contain hidden z-10 p-6">
+                        <div id="scanner" class="scanning-line"></div>
                     </div>
-                    
-                    <button onclick="processImage()" id="main-btn" class="w-full mt-8 bg-gold text-dark py-5 rounded-2xl font-bold uppercase text-[11px] tracking-widest hover:bg-goldBright shadow-xl shadow-gold/5 transition-all flex items-center justify-center gap-4 group">
-                        <span id="btn-label">Analizar Obra</span>
-                        <div id="btn-loader" class="loader hidden"></div>
+
+                    <button id="btn-analyze" onclick="startAnalysis()" class="w-full mt-10 bg-gold hover:bg-yellow-500 text-dark py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.3em] transition-all shadow-lg shadow-gold/10 active:scale-95">
+                        Ejecutar Análisis Dual
                     </button>
                 </div>
             </div>
 
-            <!-- OUTPUT SECTION -->
-            <div id="output-area" class="opacity-40 transition-opacity duration-700">
-                <div class="glass-card rounded-[3rem] overflow-hidden min-h-[450px] flex flex-col">
-                    <div class="flex border-b border-white/5 bg-white/[0.02]">
-                        <button onclick="switchTab('meta')" id="tab-meta" class="flex-1 py-5 text-[10px] font-mono uppercase tracking-widest active-tab transition-all">Esencia</button>
-                        <button onclick="switchTab('tec')" id="tab-tec" class="flex-1 py-5 text-[10px] font-mono uppercase tracking-widest text-muted hover:text-gold transition-all">Técnica</button>
+            <div id="results" class="lg:col-span-7 space-y-20 hidden">
+                <section>
+                    <h2 class="text-4xl font-bold mb-10 flex items-center gap-6">
+                        <span class="text-gold font-serif italic text-2xl">01</span> Gesto y Metafísica
+                    </h2>
+                    <div class="glass-card p-10 rounded-[2.5rem]">
+                        <p id="res-poetic" class="text-reading-meta text-2xl leading-relaxed font-serif"></p>
                     </div>
-                    <div class="p-10 flex-grow">
-                        <div id="res-meta" class="font-serif italic text-2xl leading-relaxed text-accent">Sube una imagen para comenzar el diagnóstico.</div>
-                        <div id="res-tec" class="hidden text-muted text-sm leading-relaxed whitespace-pre-wrap font-mono bg-black/30 p-4 rounded-xl border border-white/5"></div>
+                </section>
+                <section>
+                    <h2 class="text-4xl font-bold mb-10 flex items-center gap-6">
+                        <span class="text-gold font-serif italic text-2xl">02</span> Estructura Clínica
+                    </h2>
+                    <div class="glass-card p-10 rounded-[2.5rem]">
+                        <p id="res-tech" class="text-gray-400 leading-relaxed font-sans text-lg"></p>
                     </div>
-                    <div class="p-10 pt-0">
-                        <div id="res-quote" class="text-gold font-serif text-xl mb-6 border-t border-gold/10 pt-6 italic text-center"></div>
-                        <div id="res-tags" class="flex flex-wrap gap-2 justify-center"></div>
-                    </div>
-                </div>
+                </section>
             </div>
         </div>
     </main>
 
     <script>
-        let KEY = localStorage.getItem('gemini_api_key') || "";
-        let base64Data = null;
+        // PEGA AQUÍ TU NUEVA CLAVE (Solo para uso local o con restricciones de dominio)
+        const API_KEY = ""; 
+        let imgBase64 = null;
 
-        function updateStatus() {
-            const tag = document.getElementById('status-tag');
-            if(KEY) {
-                tag.innerText = "ENLACE ACTIVO";
-                tag.className = "text-[9px] font-mono tracking-widest px-4 py-1.5 rounded-full border border-gold/30 bg-gold/5 text-gold";
-            } else {
-                tag.innerText = "SIN CONEXIÓN";
-                tag.className = "text-[9px] font-mono tracking-widest px-4 py-1.5 rounded-full border border-red-500/30 bg-red-500/5 text-red-500";
-            }
-        }
-
-        function toggleApiModal(show) {
-            document.getElementById('api-modal').classList.toggle('hidden', !show);
-            if(show) document.getElementById('api-key-input').focus();
-        }
-
-        function saveApiKey() {
-            const input = document.getElementById('api-key-input').value.trim();
-            if(input) {
-                KEY = input;
-                localStorage.setItem('gemini_api_key', KEY);
-                updateStatus();
-                toggleApiModal(false);
-            }
-        }
-
-        document.getElementById('image-input').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if(!file) return;
-
+        document.getElementById('file-upload').onchange = e => {
             const reader = new FileReader();
-            reader.onload = function(event) {
-                const img = new Image();
-                img.src = event.target.result;
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const MAX_SIZE = 800; 
-                    let width = img.width;
-                    let height = img.height;
-
-                    if (width > height) {
-                        if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
-                    } else {
-                        if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    base64Data = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
-                    document.getElementById('img-preview').src = canvas.toDataURL('image/jpeg');
-                    document.getElementById('img-preview').classList.remove('hidden');
-                    document.getElementById('drop-text').classList.add('hidden');
-                    document.getElementById('output-area').classList.add('opacity-40');
-                };
+            reader.onload = ev => {
+                document.getElementById('preview').src = ev.target.result;
+                document.getElementById('preview').classList.remove('hidden');
+                document.getElementById('drop-content').classList.add('hidden');
+                imgBase64 = ev.target.result.split(',')[1];
             };
-            reader.readAsDataURL(file);
-        });
+            reader.readAsDataURL(e.target.files[0]);
+        };
 
-        async function processImage() {
-            if(!base64Data) return;
-            if(!KEY) { toggleApiModal(true); return; }
-
-            const btn = document.getElementById('main-btn');
-            const label = document.getElementById('btn-label');
-            const loader = document.getElementById('btn-loader');
-            const scanner = document.getElementById('scan-line');
-
-            btn.disabled = true;
-            label.innerText = "PROCESANDO...";
-            loader.classList.remove('hidden');
+        async function startAnalysis() {
+            if(!imgBase64 || !API_KEY) return alert("Sube una imagen y asegúrate de poner tu API KEY.");
+            
+            const btn = document.getElementById('btn-analyze');
+            const scanner = document.getElementById('scanner');
+            btn.innerText = "SINTONIZANDO...";
             scanner.style.display = 'block';
 
-            const prompt = `Analiza esta imagen como un experto en psicología del arte. Genera un diagnóstico artístico en este formato JSON exacto:
-            {
-                "meta": "Esencia poética (máx 60 palabras).",
-                "tec": "Análisis técnico de trazos y entropía.",
-                "quote": "Frase inspiradora breve.",
-                "tags": ["Tag1", "Tag2", "Tag3"]
-            }
-            IMPORTANTE: Responde solo el JSON puro, sin decoradores markdown ni bloques de código.`;
-
-            // Endpoint actualizado a v1beta (más estable para modelos gratuitos)
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`;
-
             try {
+                // Usando el modelo de última generación según documentación
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+                
                 const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        contents: [{
-                            parts: [
-                                { text: prompt },
-                                { inlineData: { mimeType: "image/jpeg", data: base64Data } }
-                            ]
-                        }]
+                        contents: [{ parts: [
+                            { text: "Analiza esta imagen creativa. Responde solo JSON: {\"p\": \"analisis poetico muy largo y profundo\", \"t\": \"analisis tecnico exhaustivo\"}" },
+                            { inlineData: { mimeType: "image/jpeg", data: imgBase64 } }
+                        ]}]
                     })
                 });
 
-                const result = await response.json();
+                const data = await response.json();
+                const res = JSON.parse(data.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim());
 
-                if (!response.ok) {
-                    const errMsg = result.error?.message || `Error ${response.status}`;
-                    throw new Error(errMsg);
-                }
-
-                if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
-                    let rawText = result.candidates[0].content.parts[0].text;
-                    
-                    // Limpieza ultra-segura de la respuesta JSON
-                    const jsonStart = rawText.indexOf('{');
-                    const jsonEnd = rawText.lastIndexOf('}') + 1;
-                    if(jsonStart === -1 || jsonEnd === 0) throw new Error("Formato de IA inválido");
-                    
-                    const jsonString = rawText.substring(jsonStart, jsonEnd);
-                    const data = JSON.parse(jsonString);
-                    
-                    renderResults(data);
-                    showFinalStatus("success", btn, label);
-                } else {
-                    throw new Error("Respuesta bloqueada por filtros de seguridad.");
-                }
+                document.getElementById('results').classList.remove('hidden');
+                document.getElementById('res-poetic').innerText = res.p;
+                document.getElementById('res-tech').innerText = res.t;
+                window.scrollTo({ top: document.getElementById('results').offsetTop - 100, behavior: 'smooth' });
 
             } catch (e) {
-                console.error("Error en la conexión:", e);
-                showFinalStatus("error", btn, label, e.message);
+                alert("Error de conexión. Verifica tu clave.");
             } finally {
-                loader.classList.add('hidden');
+                btn.innerText = "Ejecutar Análisis Dual";
                 scanner.style.display = 'none';
             }
         }
-
-        function showFinalStatus(type, btn, label, errorMsg = "") {
-            btn.disabled = false;
-
-            if(type === "success") {
-                label.innerText = "¡ANÁLISIS COMPLETADO!";
-                btn.classList.replace('bg-gold', 'bg-green-600');
-                setTimeout(() => {
-                    label.innerText = "Analizar Obra";
-                    btn.classList.replace('bg-green-600', 'bg-gold');
-                }, 3000);
-            } else {
-                // Manejo detallado de errores visuales
-                if(errorMsg.includes("403") || errorMsg.includes("key")) {
-                    label.innerText = "API KEY INVÁLIDA";
-                } else if(errorMsg.includes("404")) {
-                    label.innerText = "ENDPOINT NO ENCONTRADO";
-                } else {
-                    label.innerText = "ERROR DE VÍNCULO";
-                }
-                
-                btn.classList.replace('bg-gold', 'bg-red-600');
-                setTimeout(() => {
-                    label.innerText = "Reintentar Análisis";
-                    btn.classList.replace('bg-red-600', 'bg-gold');
-                }, 3000);
-            }
-        }
-
-        function renderResults(data) {
-            document.getElementById('output-area').classList.remove('opacity-40');
-            document.getElementById('res-meta').innerText = data.meta || "Esencia no procesada.";
-            document.getElementById('res-tec').innerText = data.tec || "Técnica no procesada.";
-            document.getElementById('res-quote').innerText = data.quote || "";
-            
-            const tagContainer = document.getElementById('res-tags');
-            tagContainer.innerHTML = '';
-            if(data.tags && Array.isArray(data.tags)) {
-                data.tags.forEach(t => {
-                    const span = document.createElement('span');
-                    span.className = "px-3 py-1 bg-gold/10 border border-gold/20 rounded-lg text-[9px] font-mono text-gold uppercase tracking-widest";
-                    span.innerText = t;
-                    tagContainer.appendChild(span);
-                });
-            }
-        }
-
-        function switchTab(type) {
-            const isMeta = type === 'meta';
-            document.getElementById('tab-meta').className = isMeta ? 'flex-1 py-5 text-[10px] font-mono uppercase tracking-widest active-tab transition-all' : 'flex-1 py-5 text-[10px] font-mono uppercase tracking-widest text-muted hover:text-gold transition-all';
-            document.getElementById('tab-tec').className = !isMeta ? 'flex-1 py-5 text-[10px] font-mono uppercase tracking-widest active-tab transition-all' : 'flex-1 py-5 text-[10px] font-mono uppercase tracking-widest text-muted hover:text-gold transition-all';
-            
-            document.getElementById('res-meta').classList.toggle('hidden', !isMeta);
-            document.getElementById('res-tec').classList.toggle('hidden', isMeta);
-        }
-
-        updateStatus();
     </script>
 </body>
 </html>
