@@ -33,8 +33,11 @@
             <div class="glass rounded-[2.5rem] p-8">
                 <div id="drop-zone" onclick="document.getElementById('file-input').click()" class="aspect-square rounded-3xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group hover:border-gold/30">
                     <input type="file" id="file-input" accept="image/*" class="hidden">
-                    <div id="idle-view" class="text-center"><p class="text-4xl mb-4">🎨</p><p class="text-[9px] uppercase gold-text tracking-widest">Inyectar Obra</p></div>
-                    <img id="preview" class="absolute inset-0 w-full h-full object-contain hidden z-10 p-4">
+                    <div id="idle-view" class="text-center">
+                        <p class="text-4xl mb-4">🎨</p>
+                        <p class="text-[9px] uppercase gold-text tracking-widest">Inyectar Obra</p>
+                    </div>
+                    <img id="preview" class="absolute inset-0 w-full h-full object-contain hidden z-10 p-4 bg-black/50">
                     <div id="scanner" class="scan-line"></div>
                 </div>
                 <button onclick="analizar()" class="w-full mt-8 bg-[#D4AF37] text-black py-4 rounded-xl font-black uppercase text-[10px] tracking-[0.3em] flex items-center justify-center gap-3">
@@ -61,32 +64,40 @@
 
         function configurarMotor() {
             const k = prompt("Pega tu API KEY nueva:");
-            if(k) { localStorage.setItem('v9_key', k.trim()); alert("Motor configurado."); }
+            if(k) { 
+                localStorage.setItem('v9_key', k.trim()); 
+                alert("Motor configurado. Ya puedes subir tu imagen."); 
+            }
         }
 
-        document.getElementById('file-input').onchange = e => {
-            const r = new FileReader();
-            r.onload = ev => {
-                document.getElementById('preview').src = ev.target.result;
-                document.getElementById('preview').classList.remove('hidden');
+        // CORREGIDO: Ahora el lector de archivos funciona correctamente
+        document.getElementById('file-input').onchange = function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                const previewImg = document.getElementById('preview');
+                previewImg.src = ev.target.result;
+                previewImg.classList.remove('hidden');
                 document.getElementById('idle-view').classList.add('hidden');
                 imgB64 = ev.target.result.split(',')[1];
             };
-            reader.readAsDataURL(e.target.files[0]);
+            reader.readAsDataURL(file);
         };
 
         async function analizar() {
             const key = localStorage.getItem('v9_key');
-            if(!key || !imgB64) return alert("Configura la llave y sube una imagen.");
+            if(!key) return alert("Configura la llave primero.");
+            if(!imgB64) return alert("Por favor, selecciona una imagen primero.");
 
             const scanner = document.getElementById('scanner');
             const loader = document.getElementById('loader');
             scanner.style.display = 'block';
             loader.style.display = 'block';
 
-            // INTENTO MULTI-MODELO (Si uno falla, prueba el otro)
             const endpoints = [
-                `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${key}`,
+                `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
                 `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${key}`
             ];
 
@@ -99,7 +110,7 @@
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
                             contents: [{ parts: [
-                                { text: "Analiza esta imagen. Responde solo JSON: {\"p\": \"analisis poetico\", \"t\": \"analisis tecnico\"}" },
+                                { text: "Analiza esta imagen. Responde solo JSON: {\"p\": \"analisis poetico corto\", \"t\": \"analisis tecnico corto\"}" },
                                 { inlineData: { mimeType: "image/jpeg", data: imgB64 } }
                             ]}]
                         })
@@ -107,15 +118,17 @@
                     const data = await response.json();
                     if(data.error) continue;
 
-                    const res = JSON.parse(data.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim());
+                    const rawText = data.candidates[0].content.parts[0].text;
+                    const res = JSON.parse(rawText.replace(/```json|```/g, "").trim());
+                    
                     document.getElementById('res-p').innerText = res.p;
                     document.getElementById('res-t').innerText = res.t;
                     document.getElementById('results-area').style.opacity = "1";
                     exitoso = true;
-                } catch (e) { console.warn("Reintentando con otro endpoint..."); }
+                } catch (e) { console.warn("Intentando ruta alternativa..."); }
             }
 
-            if(!exitoso) alert("Error: La clave no es válida o la API no está activa. Asegúrate de crear una clave NUEVA.");
+            if(!exitoso) alert("Error: No se pudo conectar. Verifica que tu clave de API sea válida y nueva.");
             scanner.style.display = 'none';
             loader.style.display = 'none';
         }
