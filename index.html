@@ -3,141 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoCreativo V9 | Dual Pro</title>
+    <title>AutoCreativo V9 | Ultimate</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&family=Playfair+Display:ital,wght@1,400&display=swap" rel="stylesheet">
     <style>
-        body { background: #050505; color: #F2F2F2; font-family: 'Outfit', sans-serif; margin: 0; }
-        .glass { background: rgba(13, 13, 15, 0.98); border: 1px solid rgba(212, 175, 55, 0.15); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
-        .gold-text { color: #D4AF37; }
-        .scan-line { position: absolute; width: 100%; height: 4px; background: #D4AF37; top: 0; animation: scan 2.5s infinite linear; display: none; z-index: 50; }
+        body { background: #050505; color: #F2F2F2; font-family: 'Outfit', sans-serif; }
+        .glass { background: #0D0D0F; border: 1px solid rgba(212, 175, 55, 0.2); }
+        .gold { color: #D4AF37; }
+        .scan { position: absolute; width: 100%; height: 3px; background: #D4AF37; top: 0; animation: scan 2s infinite linear; display: none; z-index: 50; }
         @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
-        .loader { border: 2px solid rgba(212, 175, 55, 0.1); border-top: 2px solid #D4AF37; border-radius: 50%; width: 18px; height: 18px; animation: spin 0.8s linear infinite; display: none; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="antialiased min-h-screen">
-
-    <nav class="fixed w-full z-50 bg-black/90 border-b border-white/10 h-20 flex items-center px-8 justify-between">
-        <div class="flex items-center gap-4">
-            <div class="w-8 h-8 border-2 border-gold flex items-center justify-center font-bold text-gold rotate-45"><span class="-rotate-45 text-[10px]">V9</span></div>
-            <span class="font-extrabold tracking-[0.3em] text-[11px] uppercase">AutoCreativo <span class="gold-text italic">Dual Pro</span></span>
-        </div>
-        <button onclick="configurarMotor()" class="text-[9px] border border-gold/40 px-4 py-2 rounded-full gold-text hover:bg-gold hover:text-black transition-all font-bold uppercase tracking-widest">
-            🔑 Configurar Motor
-        </button>
+<body class="p-6">
+    <nav class="flex justify-between items-center mb-12 border-b border-white/10 pb-6">
+        <h1 class="text-xs font-bold tracking-[0.3em] uppercase">AutoCreativo <span class="gold italic">V9 Ultimate</span></h1>
+        <button onclick="config()" class="text-[10px] border border-gold/40 px-4 py-2 rounded-full gold uppercase font-bold">🔑 Configurar Motor</button>
     </nav>
 
-    <main class="pt-32 pb-20 px-6 max-w-6xl mx-auto">
-        <div class="grid lg:grid-cols-2 gap-12">
-            <div class="glass rounded-[2.5rem] p-8">
-                <div id="drop-zone" onclick="document.getElementById('file-input').click()" class="aspect-square rounded-3xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group hover:border-gold/40 transition-all">
-                    <input type="file" id="file-input" accept="image/*" class="hidden">
-                    <div id="idle-view" class="text-center">
-                        <p class="text-5xl mb-4">🎨</p>
-                        <p class="text-[9px] uppercase gold-text tracking-widest">Inyectar Obra de Autor</p>
-                    </div>
-                    <img id="preview" class="absolute inset-0 w-full h-full object-contain hidden z-10 p-4">
-                    <div id="scanner" class="scan-line"></div>
-                </div>
-                <button onclick="ejecutarAnalisis()" class="w-full mt-8 bg-[#D4AF37] text-black py-5 rounded-xl font-black uppercase text-[10px] tracking-[0.3em] flex items-center justify-center gap-3 active:scale-95 transition-all">
-                    <span id="btn-text">Iniciar Análisis Dual</span>
-                    <div id="loader" class="loader"></div>
-                </button>
+    <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-10">
+        <div class="glass p-8 rounded-[2rem]">
+            <div onclick="document.getElementById('file').click()" class="relative aspect-square border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-white/5 overflow-hidden">
+                <input type="file" id="file" class="hidden" accept="image/*">
+                <p id="idle" class="text-[10px] uppercase gold tracking-widest">Inyectar Obra</p>
+                <img id="view" class="absolute inset-0 w-full h-full object-contain hidden p-4">
+                <div id="line" class="scan"></div>
             </div>
-
-            <div id="results-area" class="space-y-8 opacity-20 transition-opacity duration-1000">
-                <div class="glass p-10 rounded-[2.5rem] border-l-4 border-gold">
-                    <h3 class="gold-text text-[10px] font-bold uppercase tracking-widest mb-4 italic">01 Esencia Poética</h3>
-                    <p id="res-p" class="text-xl italic font-serif leading-relaxed text-gray-100">Esperando captura del trazo...</p>
-                </div>
-                <div class="glass p-10 rounded-[2.5rem]">
-                    <h3 class="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-4">02 Estructura Técnica</h3>
-                    <p id="res-t" class="text-sm leading-relaxed text-gray-400 font-sans"></p>
-                </div>
-            </div>
+            <button onclick="run()" class="w-full mt-6 bg-[#D4AF37] text-black py-4 rounded-xl font-bold uppercase text-xs tracking-widest">Ejecutar Análisis</button>
         </div>
-    </main>
+
+        <div id="res" class="space-y-6 opacity-20 transition-opacity duration-1000">
+            <div class="glass p-8 rounded-3xl border-l-4 border-gold italic font-serif text-xl" id="p"></div>
+            <div class="glass p-8 rounded-3xl text-sm text-gray-400 font-sans" id="t"></div>
+        </div>
+    </div>
 
     <script>
-        let imagenEnMemoria = null;
-
-        function configurarMotor() {
-            const key = prompt("Pega aquí tu API KEY de Gemini (Asegúrate que sea una nueva):");
-            if(key) { localStorage.setItem('v9_pro_key', key.trim()); alert("Motor sincronizado."); }
-        }
-
-        document.getElementById('file-input').onchange = function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                document.getElementById('preview').src = ev.target.result;
-                document.getElementById('preview').classList.remove('hidden');
-                document.getElementById('idle-view').classList.add('hidden');
-                imagenEnMemoria = ev.target.result.split(',')[1];
+        function config() { const k = prompt("Pega tu API KEY nueva:"); if(k) localStorage.setItem('key_v9', k.trim()); }
+        
+        document.getElementById('file').onchange = e => {
+            const r = new FileReader();
+            r.onload = ev => {
+                document.getElementById('view').src = ev.target.result;
+                document.getElementById('view').classList.remove('hidden');
+                document.getElementById('idle').classList.add('hidden');
+                window.img = ev.target.result.split(',')[1];
             };
-            reader.readAsDataURL(file);
+            r.readAsDataURL(e.target.files[0]);
         };
 
-        async function ejecutarAnalisis() {
-            const apiKey = localStorage.getItem('v9_pro_key');
-            if(!apiKey || !imagenEnMemoria) return alert("Configura la llave 🔑 y sube una imagen primero.");
-
-            const scanner = document.getElementById('scanner');
-            const loader = document.getElementById('loader');
-            const resultsPanel = document.getElementById('results-area');
-            
-            scanner.style.display = 'block';
-            loader.style.display = 'block';
-
-            // Siguiendo el Quickstart: Endpoint v1beta con el nuevo modelo 1.5-flash
-            const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+        async function run() {
+            const k = localStorage.getItem('key_v9');
+            if(!k || !window.img) return alert("Falta API Key o Imagen");
+            document.getElementById('line').style.display = 'block';
 
             try {
-                const response = await fetch(url, {
-                    method: "POST",
-                    headers: { 
-                        "Content-Type": "application/json",
-                        "x-goog-api-key": apiKey // Nueva cabecera recomendada
-                    },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [
-                                { text: "Analiza esta imagen creativa. Responde únicamente con un objeto JSON (sin markdown) que tenga las llaves 'p' (análisis poético y emocional) y 't' (análisis técnico y compositivo)." },
-                                { inlineData: { mimeType: "image/jpeg", data: imagenEnMemoria } }
-                            ]
-                        }],
-                        generationConfig: {
-                            temperature: 0.4,
-                            topP: 1,
-                            topK: 32,
-                            maxOutputTokens: 2048,
-                        }
-                    })
+                // PASO 1: AUTO-DETECCIÓN DE MODELO
+                const list = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${k}`);
+                const dataModels = await list.json();
+                
+                // Buscamos el modelo flash más actual disponible para tu llave
+                const model = dataModels.models.find(m => m.name.includes("flash") && m.supportedGenerationMethods.includes("generateContent"))?.name;
+                
+                if(!model) throw new Error("No se encontró un modelo compatible.");
+
+                // PASO 2: EJECUCIÓN DINÁMICA
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${k}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [
+                        { text: "Analiza esta imagen. Responde solo JSON: {\"p\":\"análisis poético\",\"t\":\"análisis técnico\"}" },
+                        { inlineData: { mimeType: "image/jpeg", data: window.img } }
+                    ]}] })
                 });
 
-                const data = await response.json();
+                const data = await res.json();
+                const clean = data.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim();
+                const json = JSON.parse(clean);
+                
+                document.getElementById('p').innerText = json.p;
+                document.getElementById('t').innerText = json.t;
+                document.getElementById('res').style.opacity = "1";
 
-                if (data.error) throw new Error(data.error.message);
-
-                const rawText = data.candidates[0].content.parts[0].text;
-                // Limpieza de formato para asegurar que el JSON se lea bien
-                const jsonClean = rawText.replace(/```json|```/g, "").trim();
-                const res = JSON.parse(jsonClean);
-
-                document.getElementById('res-p').innerText = res.p;
-                document.getElementById('res-t').innerText = res.t;
-                resultsPanel.style.opacity = "1";
-
-                window.scrollTo({ top: resultsPanel.offsetTop - 100, behavior: 'smooth' });
-
-            } catch (err) {
-                console.error("Error técnico:", err);
-                alert("ERROR DE MOTOR: " + err.message + "\n\nTip: Verifica que la clave no esté restringida en Google Cloud.");
-            } finally {
-                scanner.style.display = 'none';
-                loader.style.display = 'none';
+            } catch (e) { 
+                alert("Error de Motor: " + e.message + "\nVerifica que la API Key sea de un proyecto nuevo."); 
+            } finally { 
+                document.getElementById('line').style.display = 'none'; 
             }
         }
     </script>
