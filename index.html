@@ -5,18 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoCreativo V9 | Atelier de Autor</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;600&family=Playfair+Display:ital,wght@0,600;1,400&family=JetBrains+Mono:wght@300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;600&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
     <style>
-        body { background: #050505; color: #E0E0E0; font-family: 'Outfit', sans-serif; line-height: 1.6; }
-        .glass { background: rgba(12, 12, 14, 0.95); border: 1px solid rgba(212, 175, 55, 0.12); border-radius: 2.5rem; }
+        body { background: #050505; color: #E0E0E0; font-family: 'Outfit', sans-serif; line-height: 1.8; }
+        .glass { background: rgba(12, 12, 14, 0.98); border: 1px solid rgba(212, 175, 55, 0.12); border-radius: 2.5rem; }
         .gold-glow { text-shadow: 0 0 20px rgba(212, 175, 55, 0.3); color: #D4AF37; }
-        .tab-btn { transition: all 0.4s; opacity: 0.2; letter-spacing: 0.3em; border-bottom: 1px solid transparent; }
+        .tab-btn { transition: all 0.4s; opacity: 0.2; letter-spacing: 0.3em; border-bottom: 1px solid transparent; font-weight: 600; }
         .tab-btn.active { opacity: 1; color: #D4AF37; border-bottom: 1px solid #D4AF37; }
         .scan-line { position: absolute; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, #D4AF37, transparent); top: 0; animation: scan 3s infinite ease-in-out; display: none; z-index: 50; }
         @keyframes scan { 0% { top: 0%; opacity: 0; } 50% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
         .serif-italic { font-family: 'Playfair Display', serif; font-style: italic; }
         .loader { border: 1px solid rgba(212, 175, 55, 0.1); border-top: 1px solid #D4AF37; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .result-text { opacity: 0; transform: translateY(10px); transition: all 0.8s ease-out; }
+        .result-text.visible { opacity: 1; transform: translateY(0); }
     </style>
 </head>
 <body class="antialiased min-h-screen">
@@ -51,14 +53,14 @@
                     Sincronizar <div id="load-analisis" class="loader !border-black/20 !border-top-black"></div>
                 </button>
             </div>
-            <div id="out-analisis" class="space-y-12 opacity-5 transition-opacity duration-1000">
-                <div class="glass p-12">
+            <div id="out-analisis" class="space-y-12">
+                <div class="glass p-12 result-text" id="box-s">
                     <h3 class="text-[8px] gold-glow font-black uppercase tracking-[0.4em] mb-10">Esencia Simbólica</h3>
-                    <p id="txt-s" class="text-2xl serif-italic leading-loose text-gray-200"></p>
+                    <p id="txt-s" class="text-3xl serif-italic leading-relaxed text-gray-100"></p>
                 </div>
-                <div class="glass p-12 border-l-2 border-gold/20">
+                <div class="glass p-12 border-l-2 border-gold/20 result-text" id="box-c">
                     <h3 class="text-[8px] text-gray-500 font-black uppercase tracking-[0.4em] mb-10">Matriz Técnica</h3>
-                    <p id="txt-c" class="text-base font-light leading-loose text-gray-400 font-sans tracking-wide"></p>
+                    <p id="txt-c" class="text-lg font-light leading-relaxed text-gray-400 font-sans tracking-wide"></p>
                 </div>
             </div>
         </div>
@@ -80,7 +82,7 @@
             <div class="lg:col-span-5 space-y-10">
                 <div class="space-y-6">
                     <h2 class="text-5xl serif-italic gold-glow leading-tight">Alquimia Visual</h2>
-                    <p class="text-gray-500 text-[10px] tracking-[0.3em] leading-loose uppercase font-bold">Proyectar evolución matérica.</p>
+                    <p class="text-gray-500 text-[10px] tracking-[0.3em] leading-loose uppercase font-bold">Re-imaginación de Autor.</p>
                 </div>
                 <button onclick="run('vision')" class="w-full bg-white/[0.03] border border-gold/40 text-gold py-6 rounded-3xl font-black uppercase text-[10px] tracking-[0.4em] hover:bg-gold hover:text-black transition-all flex items-center justify-center gap-4">
                     Materializar Prompt <div id="load-vision" class="loader"></div>
@@ -88,7 +90,7 @@
             </div>
             <div class="lg:col-span-7">
                 <div class="glass p-12 min-h-[450px] flex flex-col justify-between border-dashed border border-gold/20">
-                    <div id="txt-v" class="text-xl text-gray-200 serif-italic leading-loose opacity-30 text-center pt-24 uppercase tracking-widest">Cámara de Alquimia Digital</div>
+                    <div id="txt-v" class="text-xl text-gray-200 serif-italic leading-relaxed opacity-30 text-center pt-24 uppercase tracking-widest">Cámara de Alquimia Digital</div>
                     <div id="copy-area" class="hidden pt-10 border-t border-white/5 flex justify-end">
                         <button onclick="copyV()" class="text-[9px] font-black gold-glow uppercase tracking-[0.3em] border border-gold/20 px-8 py-4 rounded-full hover:bg-gold/10 transition-all flex items-center gap-3">
                             Copiar Prompt de Autor <span id="copy-ok" class="hidden">✓</span>
@@ -120,6 +122,7 @@
         }
 
         document.getElementById('file').onchange = e => {
+            const f = e.target.files[0];
             const r = new FileReader();
             r.onload = ev => {
                 document.getElementById('preview').src = ev.target.result;
@@ -127,7 +130,7 @@
                 document.getElementById('idle').classList.add('hidden');
                 IMG = ev.target.result.split(',')[1];
             };
-            r.readAsDataURL(e.target.files[0]);
+            r.readAsDataURL(f);
         };
 
         async function run(mode) {
@@ -140,13 +143,13 @@
             if(mode === 'analisis') line.style.display = 'block';
 
             let promptText = "";
-            if(mode === 'analisis') promptText = "Analiza la imagen. Responde solo JSON puro: {\"s\":\"interpretación simbólica profunda\",\"c\":\"diagnóstico clínico técnico del trazo\"}";
+            if(mode === 'analisis') promptText = "Analiza la imagen. Responde estrictamente solo un objeto JSON: {\"s\":\"interpretacion simbolica muy profunda y elegante\",\"c\":\"diagnostico tecnico del trazo y fabricacion\"}. No incluyas markdown ni texto extra.";
             else if(mode === 'mentor') {
                 const q = document.getElementById('chat-in').value;
-                promptText = `Como mentor místico y técnico de diseño digital, responde brevemente a: ${q}`;
+                promptText = `Como mentor místico y técnico de diseño digital, responde de forma breve y profunda a: ${q}`;
                 document.getElementById('chat').innerHTML += `<div class='text-right text-[9px] uppercase tracking-widest opacity-40 mb-2 mt-8'>[Autor]: ${q}</div>`;
                 document.getElementById('chat-in').value = "";
-            } else promptText = "Describe esta imagen como un prompt artístico para render de lujo. Incluye maderas nativas chilenas como Lenga, iluminación cinematográfica, texturas de fabricación digital y atmósfera de autor. Responde solo el prompt en un párrafo.";
+            } else promptText = "Describe esta imagen como un prompt maestro para renderizado de autor. Imagina la pieza fabricada en madera de Lenga nativa, con fibras expuestas, iluminación cenital dramática, acabado en cera natural y atmósfera de taller chileno. Responde solo el prompt descriptivo en un párrafo.";
 
             try {
                 const list = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${k}`);
@@ -160,23 +163,35 @@
                     method: 'POST',
                     body: JSON.stringify(payload)
                 });
+                
                 const data = await res.json();
-                const raw = data.candidates[0].content.parts[0].text;
+                if(data.error) throw new Error(data.error.message);
+                
+                let raw = data.candidates[0].content.parts[0].text;
 
                 if(mode === 'analisis') {
-                    const json = JSON.parse(raw.replace(/```json|```/g, "").trim());
+                    // Limpieza agresiva de JSON
+                    const jsonStart = raw.indexOf('{');
+                    const jsonEnd = raw.lastIndexOf('}') + 1;
+                    const json = JSON.parse(raw.substring(jsonStart, jsonEnd));
+                    
                     document.getElementById('txt-s').innerText = json.s;
                     document.getElementById('txt-c').innerText = json.c;
-                    document.getElementById('out-analisis').style.opacity = "1";
+                    document.getElementById('box-s').classList.add('visible');
+                    document.getElementById('box-c').classList.add('visible');
                 } else if(mode === 'mentor') {
                     document.getElementById('chat').innerHTML += `<div class='serif-italic border-l border-gold/20 pl-8 py-4 text-lg text-gold/80'>[Maestro]: ${raw}</div>`;
                     document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
                 } else {
                     document.getElementById('txt-v').innerText = raw;
                     document.getElementById('txt-v').classList.remove('opacity-30', 'text-center', 'pt-24', 'uppercase');
+                    document.getElementById('txt-v').classList.add('text-left');
                     document.getElementById('copy-area').classList.remove('hidden');
                 }
-            } catch (e) { alert("Sincronización fallida."); }
+            } catch (e) { 
+                console.error(e);
+                alert("Sincronización fallida. Verifica tu clave o intenta con una imagen más liviana."); 
+            }
             finally { load.style.display = 'none'; line.style.display = 'none'; }
         }
 
