@@ -3,91 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoCreativo V9 | Ultimate</title>
+    <title>AutoCreativo V9 | Ultimate Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&family=Playfair+Display:ital,wght@1,400&display=swap" rel="stylesheet">
     <style>
-        body { background: #050505; color: #F2F2F2; font-family: 'Outfit', sans-serif; }
-        .glass { background: #0D0D0F; border: 1px solid rgba(212, 175, 55, 0.2); }
-        .gold { color: #D4AF37; }
-        .scan { position: absolute; width: 100%; height: 3px; background: #D4AF37; top: 0; animation: scan 2s infinite linear; display: none; z-index: 50; }
+        body { background: #050505; color: #F2F2F2; font-family: 'Outfit', sans-serif; overflow-x: hidden; }
+        .glass { background: rgba(13, 13, 15, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(212, 175, 55, 0.15); }
+        .gold-glow { text-shadow: 0 0 15px rgba(212, 175, 55, 0.5); color: #D4AF37; }
+        .btn-gold { background: #D4AF37; color: black; transition: all 0.3s ease; }
+        .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3); }
+        .tab-active { border-bottom: 2px solid #D4AF37; color: #D4AF37; }
+        .scan-line { position: absolute; width: 100%; height: 2px; background: #D4AF37; top: 0; animation: scan 3s infinite linear; display: none; }
         @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
     </style>
 </head>
-<body class="p-6">
-    <nav class="flex justify-between items-center mb-12 border-b border-white/10 pb-6">
-        <h1 class="text-xs font-bold tracking-[0.3em] uppercase">AutoCreativo <span class="gold italic">V9 Ultimate</span></h1>
-        <button onclick="config()" class="text-[10px] border border-gold/40 px-4 py-2 rounded-full gold uppercase font-bold">🔑 Configurar Motor</button>
+<body class="min-h-screen">
+
+    <nav class="fixed w-full z-50 bg-black/90 border-b border-white/10 h-20 flex items-center px-8 justify-between">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 border border-gold-glow flex items-center justify-center font-bold text-gold rotate-45"><span class="-rotate-45 text-[10px] gold-glow">V9</span></div>
+            <div>
+                <h1 class="font-extrabold tracking-[0.3em] text-[11px] uppercase leading-none">AutoCreativo</h1>
+                <span class="text-[9px] text-gray-500 uppercase tracking-widest">Digital Craftsman Studio</span>
+            </div>
+        </div>
+        <div class="flex gap-8 text-[10px] uppercase font-bold tracking-widest">
+            <button onclick="switchTab('analisis')" id="tab-analisis" class="tab-active py-2">Análisis</button>
+            <button onclick="switchTab('mentor')" id="tab-mentor" class="py-2 text-gray-500">Mentor</button>
+            <button onclick="switchTab('creacion')" id="tab-creacion" class="py-2 text-gray-500">Creación</button>
+        </div>
+        <button onclick="config()" class="text-[9px] border border-gold/40 px-4 py-2 rounded-full gold-glow hover:bg-gold hover:text-black transition-all">🔑 API ENGINE</button>
     </nav>
 
-    <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-10">
-        <div class="glass p-8 rounded-[2rem]">
-            <div onclick="document.getElementById('file').click()" class="relative aspect-square border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-white/5 overflow-hidden">
-                <input type="file" id="file" class="hidden" accept="image/*">
-                <p id="idle" class="text-[10px] uppercase gold tracking-widest">Inyectar Obra</p>
-                <img id="view" class="absolute inset-0 w-full h-full object-contain hidden p-4">
-                <div id="line" class="scan"></div>
+    <main class="pt-32 px-6 max-w-7xl mx-auto">
+        
+        <div id="sec-analisis" class="grid lg:grid-cols-2 gap-12">
+            <div class="glass p-8 rounded-[2.5rem]">
+                <div onclick="document.getElementById('file').click()" class="relative aspect-square border-2 border-dashed border-white/10 rounded-3xl flex items-center justify-center cursor-pointer hover:bg-white/5 transition-all overflow-hidden">
+                    <input type="file" id="file" class="hidden" accept="image/*">
+                    <div id="idle" class="text-center">
+                        <p class="text-4xl mb-2 opacity-50">✦</p>
+                        <p class="text-[9px] uppercase gold-glow tracking-[0.4em]">Inyectar Trazado / Obra</p>
+                    </div>
+                    <img id="view" class="absolute inset-0 w-full h-full object-contain hidden p-6 z-10">
+                    <div id="line" class="scan-line z-20"></div>
+                </div>
+                <button onclick="ejecutar('analisis')" class="btn-gold w-full mt-8 py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.3em]">Ejecutar Diagnóstico Dual</button>
             </div>
-            <button onclick="run()" class="w-full mt-6 bg-[#D4AF37] text-black py-4 rounded-xl font-bold uppercase text-xs tracking-widest">Ejecutar Análisis</button>
+            <div id="res-analisis" class="space-y-6 opacity-20 transition-all duration-1000">
+                <div class="glass p-10 rounded-[2.5rem] border-l-4 border-gold/50">
+                    <p class="text-[10px] gold-glow font-bold uppercase tracking-widest mb-6 italic">✦ Crítica Poética</p>
+                    <p id="out-p" class="text-2xl font-serif italic leading-relaxed"></p>
+                </div>
+                <div class="glass p-10 rounded-[2.5rem]">
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-6">✦ Matriz Técnica</p>
+                    <p id="out-t" class="text-sm text-gray-400 leading-relaxed"></p>
+                </div>
+            </div>
         </div>
 
-        <div id="res" class="space-y-6 opacity-20 transition-opacity duration-1000">
-            <div class="glass p-8 rounded-3xl border-l-4 border-gold italic font-serif text-xl" id="p"></div>
-            <div class="glass p-8 rounded-3xl text-sm text-gray-400 font-sans" id="t"></div>
+        <div id="sec-mentor" class="hidden max-w-3xl mx-auto text-center space-y-12 py-10">
+            <div class="glass p-12 rounded-[3rem] border-t-4 border-gold">
+                <h2 class="text-3xl font-serif italic mb-6 gold-glow">Consejo del Maestro</h2>
+                <div id="res-mentor" class="text-xl text-gray-300 leading-relaxed min-h-[150px]">
+                    "La máquina es rápida... pero la madera tiene alma. Sube una obra para recibir guía."
+                </div>
+                <button onclick="ejecutar('mentor')" class="btn-gold px-12 py-4 mt-10 rounded-full font-bold uppercase text-[10px] tracking-widest">Consultar al Mentor</button>
+            </div>
         </div>
-    </div>
+
+        <div id="sec-creacion" class="hidden grid lg:grid-cols-2 gap-12">
+            <div class="glass p-10 rounded-[2.5rem] space-y-8">
+                <h2 class="text-2xl font-serif italic gold-glow">Arquitecto de Visiones</h2>
+                <p class="text-sm text-gray-400">Describe una idea básica y el motor creará una "Obra de Autor" conceptual basada en tu estilo de diseño digital y maderas nativas.</p>
+                <textarea id="idea-input" class="w-full bg-black/50 border border-white/10 rounded-2xl p-6 text-sm focus:border-gold outline-none h-40" placeholder="Ej: Un amplificador que parezca una raíz brotando del suelo..."></textarea>
+                <button onclick="ejecutar('creacion')" class="btn-gold w-full py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.3em]">Materializar Prompt</button>
+            </div>
+            <div class="glass p-10 rounded-[2.5rem] flex flex-col justify-center border-dashed border-2 border-gold/20">
+                <p class="text-[10px] gold-glow font-bold uppercase tracking-widest mb-4">Prompt de Autor Generado:</p>
+                <div id="res-creacion" class="text-lg text-gray-300 italic leading-relaxed"></div>
+            </div>
+        </div>
+
+    </main>
 
     <script>
-        function config() { const k = prompt("Pega tu API KEY nueva:"); if(k) localStorage.setItem('key_v9', k.trim()); }
-        
+        let imgBase64 = null;
+
+        function config() {
+            const k = prompt("API KEY:");
+            if(k) localStorage.setItem('v9_key', k.trim());
+        }
+
+        function switchTab(tab) {
+            ['analisis', 'mentor', 'creacion'].forEach(t => {
+                document.getElementById(`sec-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('tab-active', 'text-gold');
+            });
+            document.getElementById(`sec-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-${tab}`).classList.add('tab-active');
+            if(tab === 'analisis') document.getElementById(`sec-${tab}`).classList.add('grid');
+            if(tab === 'creacion') document.getElementById(`sec-${tab}`).classList.add('grid');
+        }
+
         document.getElementById('file').onchange = e => {
             const r = new FileReader();
             r.onload = ev => {
                 document.getElementById('view').src = ev.target.result;
                 document.getElementById('view').classList.remove('hidden');
                 document.getElementById('idle').classList.add('hidden');
-                window.img = ev.target.result.split(',')[1];
+                imgBase64 = ev.target.result.split(',')[1];
             };
             r.readAsDataURL(e.target.files[0]);
         };
 
-        async function run() {
-            const k = localStorage.getItem('key_v9');
-            if(!k || !window.img) return alert("Falta API Key o Imagen");
+        async function ejecutar(modo) {
+            const k = localStorage.getItem('v9_key');
+            if(!k) return alert("Configura la API KEY");
+            
             document.getElementById('line').style.display = 'block';
+            let prompt = "";
+            
+            if(modo === 'analisis') {
+                if(!imgBase64) return alert("Sube una imagen");
+                prompt = "Analiza esta obra. Responde SOLO JSON: {\"p\":\"crítica poética profunda\",\"t\":\"análisis técnico de composición y posibles rutas CNC\"}";
+            } else if(modo === 'mentor') {
+                prompt = "Actúa como un sabio maestro de carpintería digital. Dame un consejo místico y técnico sobre el equilibrio entre la máquina y el alma de la madera nativa. Máximo 3 líneas.";
+            } else {
+                const idea = document.getElementById('idea-input').value;
+                prompt = `Convierte esta idea: "${idea}" en un Prompt detallado para generación de imágenes artísticas. El estilo debe ser 'Industrial-Orgánico Pro', con maderas nativas como Lenga o Roble y luces ámbar. Responde solo el prompt en inglés.`;
+            }
 
             try {
-                // PASO 1: AUTO-DETECCIÓN DE MODELO
+                // Sistema de Autodetección de Modelo (Para evitar el Error de Conexión)
                 const list = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${k}`);
                 const dataModels = await list.json();
-                
-                // Buscamos el modelo flash más actual disponible para tu llave
                 const model = dataModels.models.find(m => m.name.includes("flash") && m.supportedGenerationMethods.includes("generateContent"))?.name;
-                
-                if(!model) throw new Error("No se encontró un modelo compatible.");
 
-                // PASO 2: EJECUCIÓN DINÁMICA
+                const payload = { contents: [{ parts: [{ text: prompt }] }] };
+                if(imgBase64 && modo !== 'creacion') {
+                    payload.contents[0].parts.push({ inlineData: { mimeType: "image/jpeg", data: imgBase64 } });
+                }
+
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${k}`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [
-                        { text: "Analiza esta imagen. Responde solo JSON: {\"p\":\"análisis poético\",\"t\":\"análisis técnico\"}" },
-                        { inlineData: { mimeType: "image/jpeg", data: window.img } }
-                    ]}] })
+                    body: JSON.stringify(payload)
                 });
 
                 const data = await res.json();
-                const clean = data.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim();
-                const json = JSON.parse(clean);
-                
-                document.getElementById('p').innerText = json.p;
-                document.getElementById('t').innerText = json.t;
-                document.getElementById('res').style.opacity = "1";
+                const text = data.candidates[0].content.parts[0].text;
 
-            } catch (e) { 
-                alert("Error de Motor: " + e.message + "\nVerifica que la API Key sea de un proyecto nuevo."); 
-            } finally { 
-                document.getElementById('line').style.display = 'none'; 
+                if(modo === 'analisis') {
+                    const json = JSON.parse(text.replace(/```json|```/g, ""));
+                    document.getElementById('out-p').innerText = json.p;
+                    document.getElementById('out-t').innerText = json.t;
+                    document.getElementById('res-analisis').style.opacity = "1";
+                } else if(modo === 'mentor') {
+                    document.getElementById('res-mentor').innerText = text;
+                } else {
+                    document.getElementById('res-creacion').innerText = text;
+                }
+            } catch (e) {
+                alert("Error de Motor: " + e.message);
+            } finally {
+                document.getElementById('line').style.display = 'none';
             }
         }
     </script>
