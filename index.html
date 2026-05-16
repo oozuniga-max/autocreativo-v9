@@ -5,7 +5,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600&family=Playfair+Display:ital,wght@1,400&display=swap" rel="stylesheet">
     <style>
-        body { background: #050505; color: #F2F2F2; font-family: 'Outfit', sans-serif; }
+        body { background: #050505; color: #F2F2F2; font-family: 'Outfit', sans-serif; margin: 0; }
         .glass { background: #0D0D0F; border: 1px solid rgba(212, 175, 55, 0.2); }
         .gold { color: #D4AF37; }
         @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
@@ -20,7 +20,7 @@
 
     <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-10">
         <div class="glass p-8 rounded-3xl">
-            <div onclick="document.getElementById('file').click()" class="relative aspect-square border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-white/5">
+            <div id="drop-zone" onclick="document.getElementById('file').click()" class="relative aspect-square border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-white/5 overflow-hidden">
                 <input type="file" id="file" class="hidden" accept="image/*">
                 <p id="idle" class="text-[10px] uppercase gold tracking-widest text-center">Inyectar Obra</p>
                 <img id="view" class="absolute inset-0 w-full h-full object-contain hidden p-4">
@@ -34,44 +34,63 @@
                 <p id="p" class="text-xl italic font-serif leading-relaxed"></p>
             </div>
             <div class="glass p-8 rounded-3xl">
-                <p id="t" class="text-sm text-gray-400 leading-relaxed"></p>
+                <p id="t" class="text-sm text-gray-400 leading-relaxed font-sans"></p>
             </div>
         </div>
     </div>
 
     <script>
-        function saveKey() { const k = prompt("API KEY:"); if(k) localStorage.setItem('key', k.trim()); }
+        function saveKey() { const k = prompt("Pega aquí tu API KEY:"); if(k) localStorage.setItem('v9_key', k.trim()); }
         
         document.getElementById('file').onchange = e => {
+            const f = e.target.files[0];
+            if(!f) return;
             const r = new FileReader();
             r.onload = ev => {
                 document.getElementById('view').src = ev.target.result;
                 document.getElementById('view').classList.remove('hidden');
                 document.getElementById('idle').classList.add('hidden');
-                window.img = ev.target.result.split(',')[1];
+                window.imgData = ev.target.result.split(',')[1];
             };
-            r.readAsDataURL(e.target.files[0]);
+            r.readAsDataURL(f);
         };
 
         async function run() {
-            const k = localStorage.getItem('key');
-            if(!k || !window.img) return alert("Falta API Key o Imagen");
+            const k = localStorage.getItem('v9_key');
+            if(!k || !window.imgData) return alert("Falta configurar la API KEY o subir la imagen.");
             document.getElementById('line').style.display = 'block';
 
-            try {
-                // RUTA ESTÁNDAR 2026
-                const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${k}`, {
-                    method: 'POST',
-                    body: JSON.stringify({ contents: [{ parts: [{ text: "Analiza esta imagen. Responde solo JSON: {\"p\":\"poético\",\"t\":\"técnico\"}" }, { inlineData: { mimeType: "image/jpeg", data: window.img } }] }] })
-                });
-                const d = await r.json();
-                if(d.error) throw new Error(d.error.message);
-                const j = JSON.parse(d.candidates[0].content.parts[0].text.replace(/```json|```/g, ""));
-                document.getElementById('p').innerText = j.p;
-                document.getElementById('t').innerText = j.t;
-                document.getElementById('res').style.opacity = "1";
-            } catch (e) { alert("ERROR: " + e.message); }
-            finally { document.getElementById('line').style.display = 'none'; }
+            // MOTOR INTELIGENTE: Prueba rutas v1 y v1beta con diferentes modelos
+            const urls = [
+                `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${k}`,
+                `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${k}`
+            ];
+
+            let success = false;
+            for (let url of urls) {
+                if(success) break;
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: "Analiza esta imagen de dibujo. Responde solo JSON: {\"p\":\"analisis poetico corto\",\"t\":\"analisis tecnico corto\"}" }, { inlineData: { mimeType: "image/jpeg", data: window.imgData } }] }] })
+                    });
+                    
+                    const data = await response.json();
+                    if(data.error) continue; // Prueba el siguiente si hay error de modelo
+
+                    const content = data.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim();
+                    const json = JSON.parse(content);
+                    
+                    document.getElementById('p').innerText = json.p;
+                    document.getElementById('t').innerText = json.t;
+                    document.getElementById('res').style.opacity = "1";
+                    success = true;
+                } catch (e) { console.warn("Intentando ruta alternativa..."); }
+            }
+
+            if(!success) alert("Error: No se pudo conectar con ningún modelo. Verifica que tu API Key sea nueva.");
+            document.getElementById('line').style.display = 'none';
         }
     </script>
 </body>
