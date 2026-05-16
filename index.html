@@ -5,96 +5,78 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoCreativo V9 | Atelier de Autor</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@1,400;1,700&family=JetBrains+Mono&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: { dark: '#050505', gold: '#D4AF37', muted: '#A0A0A5' },
-                    fontFamily: { sans: ['Outfit', 'sans-serif'], serif: ['Playfair Display', 'serif'], mono: ['JetBrains Mono', 'monospace'] }
-                }
-            }
-        }
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&family=Playfair+Display:ital,wght@1,400;1,700&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #050505; color: #F2F2F2; scroll-behavior: smooth; }
-        .glass-card { background: rgba(13, 13, 15, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(212, 175, 55, 0.15); box-shadow: 0 30px 60px -12px rgba(0,0,0,0.8); }
-        .scanning-line { position: absolute; width: 100%; height: 4px; background: linear-gradient(90deg, transparent, #D4AF37, transparent); top: 0; animation: scan 3s infinite linear; display: none; z-index: 50; }
+        body { background-color: #050505; color: #F2F2F2; font-family: 'Outfit', sans-serif; }
+        .glass { background: rgba(13, 13, 15, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(212, 175, 55, 0.15); }
+        .gold-text { color: #D4AF37; }
+        .scan-line { position: absolute; width: 100%; height: 4px; background: linear-gradient(90deg, transparent, #D4AF37, transparent); top: 0; animation: scan 3s infinite linear; display: none; }
         @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
-        .text-reading-meta { font-style: italic; border-left: 3px solid #D4AF37; padding-left: 1.5rem; color: #E5E5E7; }
     </style>
 </head>
 <body class="antialiased min-h-screen">
 
-    <nav class="fixed w-full z-50 bg-dark/95 backdrop-blur-xl border-b border-white/10">
+    <nav class="fixed w-full z-50 bg-[#050505]/95 backdrop-blur-xl border-b border-white/10">
         <div class="max-w-7xl mx-auto px-8 h-24 flex justify-between items-center">
             <div class="flex items-center gap-4">
                 <div class="w-10 h-10 border-2 border-gold flex items-center justify-center font-bold text-gold rotate-45">
                     <span class="-rotate-45 font-sans">V9</span>
                 </div>
-                <span class="font-extrabold tracking-[0.4em] text-xs uppercase">AutoCreativo <span class="text-gold italic serif">Pro</span></span>
+                <span class="font-extrabold tracking-[0.4em] text-xs uppercase">AutoCreativo <span class="text-gold italic">Pro</span></span>
             </div>
-            <div class="hidden lg:flex gap-12 font-mono text-[10px] tracking-[0.5em] text-muted uppercase">
-                <span>Diagnóstico</span>
-                <span>Mentoría</span>
-            </div>
+            <button onclick="configurarClave()" class="text-[9px] border border-gold/30 px-4 py-2 rounded-full gold-text hover:bg-gold hover:text-black transition-all">
+                🔑 CONFIGURAR LLAVE
+            </button>
         </div>
     </nav>
 
     <main class="pt-44 pb-32 px-8 max-w-7xl mx-auto">
-        <header class="mb-24 text-center">
-            <h1 class="text-6xl lg:text-8xl font-bold tracking-tighter mb-8 leading-none">
-                El Alma en el <span class="text-gold font-serif italic">Trazo.</span>
-            </h1>
-            <p class="text-muted text-xl max-w-3xl mx-auto font-light leading-relaxed">
-                Interpretación dual: la precisión técnica del artesano unida a la profundidad del símbolo metafísico.
-            </p>
-        </header>
-
         <div class="grid lg:grid-cols-12 gap-16">
             <div class="lg:col-span-5">
-                <div class="glass-card rounded-[2.5rem] p-10 sticky top-36">
-                    <div id="drop-zone" onclick="document.getElementById('file-upload').click()" class="w-full aspect-square rounded-3xl border-2 border-dashed border-white/5 bg-white/[0.02] flex flex-col items-center justify-center cursor-pointer relative overflow-hidden transition-all group hover:border-gold/40">
+                <div class="glass rounded-[2.5rem] p-10 sticky top-36">
+                    <div id="drop-zone" onclick="document.getElementById('file-upload').click()" class="aspect-square rounded-3xl border-2 border-dashed border-white/5 bg-white/[0.02] flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group hover:border-gold/40">
                         <input type="file" id="file-upload" accept="image/*" class="hidden">
-                        <div id="drop-content" class="text-center group-hover:scale-105 transition-all">
+                        <div id="drop-content" class="text-center">
                             <div class="text-5xl mb-6">✨</div>
-                            <p class="font-mono text-[10px] tracking-widest uppercase text-gold">Inyectar Obra</p>
+                            <p class="font-mono text-[10px] uppercase tracking-widest gold-text">Inyectar Obra</p>
                         </div>
                         <img id="preview" class="absolute inset-0 w-full h-full object-contain hidden z-10 p-6">
-                        <div id="scanner" class="scanning-line"></div>
+                        <div id="scanner" class="scan-line"></div>
                     </div>
-
-                    <button id="btn-analyze" onclick="startAnalysis()" class="w-full mt-10 bg-gold hover:bg-yellow-500 text-dark py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.3em] transition-all shadow-lg shadow-gold/10 active:scale-95">
-                        Ejecutar Análisis Dual
+                    <button onclick="startAnalysis()" class="w-full mt-10 bg-gold text-black py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.3em] shadow-lg shadow-gold/10">
+                        EJECUTAR ANÁLISIS DUAL
                     </button>
                 </div>
             </div>
 
-            <div id="results" class="lg:col-span-7 space-y-20 hidden">
-                <section>
-                    <h2 class="text-4xl font-bold mb-10 flex items-center gap-6">
-                        <span class="text-gold font-serif italic text-2xl">01</span> Gesto y Metafísica
-                    </h2>
-                    <div class="glass-card p-10 rounded-[2.5rem]">
-                        <p id="res-poetic" class="text-reading-meta text-2xl leading-relaxed font-serif"></p>
+            <div id="results" class="lg:col-span-7 space-y-20">
+                <div id="empty-state" class="opacity-20 text-center py-40">
+                    <p class="font-mono text-xs tracking-widest uppercase">Esperando sintonía del trazo...</p>
+                </div>
+                <div id="data-content" class="hidden space-y-12">
+                    <div class="glass p-10 rounded-[2.5rem] border-l-4 border-gold">
+                        <h3 class="gold-text text-[10px] uppercase font-bold mb-6 tracking-widest">Esencia Poética</h3>
+                        <p id="res-p" class="text-2xl leading-relaxed italic font-serif"></p>
                     </div>
-                </section>
-                <section>
-                    <h2 class="text-4xl font-bold mb-10 flex items-center gap-6">
-                        <span class="text-gold font-serif italic text-2xl">02</span> Estructura Clínica
-                    </h2>
-                    <div class="glass-card p-10 rounded-[2.5rem]">
-                        <p id="res-tech" class="text-gray-400 leading-relaxed font-sans text-lg"></p>
+                    <div class="glass p-10 rounded-[2.5rem]">
+                        <h3 class="text-gray-500 text-[10px] uppercase font-bold mb-6 tracking-widest">Análisis Clínico</h3>
+                        <p id="res-t" class="text-gray-400 leading-relaxed font-sans"></p>
                     </div>
-                </section>
+                </div>
             </div>
         </div>
     </main>
 
     <script>
-        // PEGA AQUÍ TU NUEVA CLAVE (Solo para uso local o con restricciones de dominio)
-        const API_KEY = ""; 
         let imgBase64 = null;
+
+        function configurarClave() {
+            const key = prompt("Ingrese su API KEY de Google Gemini:");
+            if(key) {
+                localStorage.setItem('gemini_key', key);
+                alert("Llave configurada localmente con éxito.");
+            }
+        }
 
         document.getElementById('file-upload').onchange = e => {
             const reader = new FileReader();
@@ -108,23 +90,20 @@
         };
 
         async function startAnalysis() {
-            if(!imgBase64 || !API_KEY) return alert("Sube una imagen y asegúrate de poner tu API KEY.");
-            
-            const btn = document.getElementById('btn-analyze');
+            const key = localStorage.getItem('gemini_key');
+            if(!key) return alert("Por favor, use el botón superior para configurar su LLAVE primero.");
+            if(!imgBase64) return alert("Sube una imagen.");
+
             const scanner = document.getElementById('scanner');
-            btn.innerText = "SINTONIZANDO...";
             scanner.style.display = 'block';
 
             try {
-                // Usando el modelo de última generación según documentación
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-                
-                const response = await fetch(url, {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${key}`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         contents: [{ parts: [
-                            { text: "Analiza esta imagen creativa. Responde solo JSON: {\"p\": \"analisis poetico muy largo y profundo\", \"t\": \"analisis tecnico exhaustivo\"}" },
+                            { text: "Analiza esta imagen creativa. Responde solo JSON: {\"p\": \"analisis poetico profundo\", \"t\": \"analisis tecnico exhaustivo\"}" },
                             { inlineData: { mimeType: "image/jpeg", data: imgBase64 } }
                         ]}]
                     })
@@ -133,15 +112,14 @@
                 const data = await response.json();
                 const res = JSON.parse(data.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim());
 
-                document.getElementById('results').classList.remove('hidden');
-                document.getElementById('res-poetic').innerText = res.p;
-                document.getElementById('res-tech').innerText = res.t;
-                window.scrollTo({ top: document.getElementById('results').offsetTop - 100, behavior: 'smooth' });
+                document.getElementById('empty-state').classList.add('hidden');
+                document.getElementById('data-content').classList.remove('hidden');
+                document.getElementById('res-p').innerText = res.p;
+                document.getElementById('res-t').innerText = res.t;
 
             } catch (e) {
-                alert("Error de conexión. Verifica tu clave.");
+                alert("Error: Verifique su llave o la conexión.");
             } finally {
-                btn.innerText = "Ejecutar Análisis Dual";
                 scanner.style.display = 'none';
             }
         }
