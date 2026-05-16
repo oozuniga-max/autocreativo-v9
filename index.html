@@ -57,11 +57,11 @@
             <div id="out-analisis" class="space-y-12">
                 <div class="glass p-12 result-box" id="box-s">
                     <h3 class="text-[8px] gold-glow font-black uppercase tracking-[0.5em] mb-10 border-b border-gold/10 pb-6 italic">Interpretación de la Esencia</h3>
-                    <p id="txt-s" class="text-xl serif-italic leading-relaxed text-gray-200"></p>
+                    <p id="txt-s" class="text-xl serif-italic leading-loose text-gray-200"></p>
                 </div>
                 <div class="glass p-12 result-box" id="box-c">
                     <h3 class="text-[8px] text-gray-500 font-black uppercase tracking-[0.5em] mb-10 border-b border-white/5 pb-6 italic">Análisis de la Técnica</h3>
-                    <p id="txt-c" class="text-xl serif-italic leading-relaxed text-gray-200"></p>
+                    <p id="txt-c" class="text-xl serif-italic leading-loose text-gray-200"></p>
                 </div>
             </div>
         </div>
@@ -82,16 +82,15 @@
         <div id="sec-vision" class="hidden grid lg:grid-cols-12 gap-12 items-start">
             <div class="lg:col-span-5 space-y-8">
                 <h2 class="text-4xl serif-italic gold-glow leading-tight italic">Alquimia Visual</h2>
-                <p class="text-gray-500 text-[9px] tracking-[0.4em] uppercase font-bold italic">Materialización de Autor.</p>
                 <button onclick="run('vision')" class="w-full bg-white/[0.02] border border-gold/20 text-gold py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.4em] hover:bg-gold hover:text-black transition-all flex items-center justify-center gap-4">
                     Generar Prompt <div id="load-vision" class="loader"></div>
                 </button>
             </div>
             <div class="lg:col-span-7">
                 <div class="glass p-12 min-h-[400px] flex flex-col justify-between border-dashed border border-gold/10">
-                    <div id="txt-v" class="text-lg text-gray-300 serif-italic leading-relaxed text-left opacity-80 pt-4 italic">...</div>
+                    <div id="txt-v" class="text-lg text-gray-300 serif-italic leading-loose text-left opacity-80 pt-4 italic">...</div>
                     <div id="copy-area" class="hidden pt-8 border-t border-white/5 flex justify-end">
-                        <button onclick="copyV()" class="text-[8px] font-black gold-glow uppercase tracking-[0.4em] border border-gold/20 px-8 py-3 rounded-full hover:bg-gold/10 transition-all flex items-center gap-3">
+                        <button onclick="copyV()" class="text-[9px] font-black gold-glow uppercase tracking-[0.4em] border border-gold/20 px-8 py-3 rounded-full hover:bg-gold/10 transition-all flex items-center gap-3">
                             Copiar Prompt <span id="copy-ok" class="hidden">✓</span>
                         </button>
                     </div>
@@ -141,18 +140,18 @@
 
             let promptText = "";
             if(mode === 'analisis') {
-                promptText = "Analiza la imagen. Responde estrictamente un JSON con las claves 's' (interpretación mística/emocional) y 'c' (análisis técnico de trazo y fabricación). Estilo poético y profundo.";
+                promptText = "Analiza la imagen. Responde estrictamente un JSON con las claves 's' (esencia simbólica/mística) y 'c' (análisis técnico del trazo).";
             } else if(mode === 'mentor') {
                 const q = document.getElementById('chat-in').value;
-                promptText = `Actúa como mentor de diseño y carpintería digital. Responde brevemente a: ${q}`;
+                promptText = `Responde brevemente a: ${q}`;
                 document.getElementById('chat').innerHTML += `<div class='text-right text-[8px] tracking-widest opacity-30 mb-2 mt-8 uppercase'>[Autor]: ${q}</div>`;
                 document.getElementById('chat-in').value = "";
             } else {
-                promptText = "Basado en este boceto, genera un prompt para un render ultra-realista de autor. Imagina madera de Lenga nativa, luz cenital y atmósfera de taller dramática. Un párrafo descriptivo.";
+                promptText = "Basado en este boceto, genera un prompt para un render ultra-realista de autor en madera de Lenga nativa.";
             }
 
             try {
-                // MÉTODO DE CABECERA DIRECTA (Más compatible con navegadores)
+                // BYPASS DE CONEXIÓN: Usamos el endpoint más compatible
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${k}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -189,7 +188,7 @@
                 }
             } catch (e) {
                 console.error(e);
-                alert("Error de comunicación. Intenta con una clave API nueva y verifica tu conexión.");
+                alert("Error de comunicación. Verifica tu API Key o conexión.");
             } finally {
                 load.style.display = 'none';
                 line.style.display = 'none';
